@@ -1,0 +1,13 @@
+.card {
+  height: 12rem;
+  font-size: 1rem;
+  margin: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(234, 232, 232);
+  svg {
+    height: 2rem;
+    width: 2rem;
+  }
+}

@@ -1,0 +1,44 @@
+@use "abstracts/tools";
+@use "abstracts/variables";
+
+@use "animations/easings.scss";
+@use "animations/animations.scss";
+@use "animations/core.scss";
+
+@use "base/base";
+@use "base/button";
+@use "base/form";
+@use "base/typography";
+
+@use "components/sectionTitle.scss";
+@use "components/package.scss";
+@use "components/masthead.scss";
+@use "components/citiesCard.scss";
+@use "components/ctaCard.scss";
+@use "components/tabs.scss";
+@use "components/accordion.scss";
+@use "components/header.scss";
+@use "components/cardImage.scss";
+@use "components/footer.scss";
+@use "components/mainSearch.scss";
+@use "components/featureIcon.scss";
+@use "components/testimonials.scss";
+@use "components/pagination.scss";
+@use "components/dashboard.scss";
+@use "components/blogCard.scss";
+@use "components/dragSlider.scss";
+@use "components/niceSelect.scss";
+@use "components/mapFilter.scss";
+@use "components/hotelsCard.scss";
+
+@use "components/preloader.scss";
+
+@use "utilities/spacing";
+@use "utilities/utilities";
+
+@use "vendors/icons.scss";
+
+// custom scss for all site & slick
+@use "custom/custom-slick";
+@use "custom/price-range-slider";
+@use "custom/custom-next";

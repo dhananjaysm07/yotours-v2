@@ -1,0 +1,103 @@
+@use "../abstracts/tools";
+
+.sectionTitle {
+  &__title {
+  }
+
+  &__text {}
+
+  &.-md {
+    .sectionTitle {
+      &__title {
+        font-size: var(--text-30);
+
+        @include tools.media-below(md) {
+          font-size: var(--text-26);
+        }
+      }
+    }
+  }
+
+  &.-lg {
+    .sectionTitle {
+      &__title {
+        font-size: var(--text-40);
+      }
+    }
+  }
+}
+.readtxt{
+  color: #3554d1;
+  font-weight: 900;
+  position: absolute;
+  bottom: -19px;
+  :hover{
+    cursor: pointer;
+  }
+}
+.intro-wrapper{
+  position: relative;
+}
+
+@media screen and (max-width:768px) {
+  .destination_cat{
+    .slick-slide{
+      button{
+        height:100px;
+      }
+    }
+  }
+}
+.socialurl{
+  position: absolute;
+  top: 5%;
+  left: 3%;
+  a, button{
+    font-size: 18px;
+    margin-left: 8px;
+  }
+  span{
+    margin-left: 8px;
+    font-size: 15px;
+  }
+  @media screen and (max-width: 767px) {
+    top: 15px;
+  }
+}
+.expand {
+  svg {
+    font-size: 20px;
+    margin-left: 10px;
+  }
+  &:hover {
+    cursor: pointer;
+  }
+}
+.showmore{
+  color: #0071eb;
+  background: transparent;
+  border:2px solid #0071eb;
+  border-radius: 5rem;
+  transition: border-color .2s ease-out;
+  outline: 0;
+  width: max-content;
+  font-size: 1rem;
+  line-height: 1.375rem;
+  font-weight: 500;
+  padding: 9px 24px;
+  display: flex;
+  align-items: center;
+  margin: auto;
+  height: 45px;
+}
+.loader{
+  width: 25%;
+  display: flex;
+  margin: auto;
+}
+.sectionTitle.-md  > h2.sectionTitle__title, .expand{
+    font-size: 25px;
+}
+.ellipsepg:hover{
+    cursor: pointer;
+}

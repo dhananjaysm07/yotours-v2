@@ -1,0 +1,94 @@
+@use "easings";
+
+[data-anim-wrap] {
+  pointer-events: none;
+  &.animated {
+    pointer-events: auto;
+  }
+}
+
+@keyframes reveal {
+  100% {
+    opacity: 1;
+  }
+}
+
+// Slide anim
+$slide-distance: 40px;
+$slide-duration: 1s;
+
+[data-anim^="slide-"],
+[data-anim-child^="slide-"] {
+  opacity: 0;
+  transition-property: opacity, transform;
+  pointer-events: none;
+
+  transition-duration: $slide-duration;
+  transition-timing-function: easings.$easeOutCubic;
+
+  &.is-in-view {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    pointer-events: auto;
+  }
+}
+
+[data-anim^="slide-up"],
+[data-anim-child^="slide-up"] {
+  transform: translate3d(0, $slide-distance, 0);
+}
+
+[data-anim^="slide-down"],
+[data-anim-child^="slide-down"] {
+  transform: translate3d(0, -$slide-distance, 0);
+}
+
+[data-anim^="slide-right"],
+[data-anim-child^="slide-right"] {
+  transform: translate3d(-$slide-distance, 0, 0);
+}
+
+[data-anim^="slide-left"],
+[data-anim-child^="slide-left"] {
+  transform: translate3d($slide-distance, 0, 0);
+}
+
+// Fade animation
+
+[data-anim^="fade"],
+[data-anim-child^="fade"] {
+  opacity: 0;
+  transition-property: opacity;
+  pointer-events: none;
+
+  transition-duration: 0.8s;
+  transition-timing-function: easings.$easeInOutCubic;
+
+  &.is-in-view {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes blurEffect {
+  from {
+    filter: blur(0px);
+  }
+  to {
+    filter: blur(5px);
+  }
+}
