@@ -5,15 +5,15 @@ import 'swiper/css/scrollbar';
 import 'swiper/css/effect-cards';
 
 import CookieConsentBar from '@/app/components.v2/ui/cookie-consent';
-import Header from '@/app/components.v2/header';
+import Header from '@/app/components.v2/common/header';
 import { constants } from '@/constants';
 import { GET_CONTENT_QUERY } from '@/graphql/query';
 import { getApolloClient } from '@/lib/apollo/apollo-client-ssr';
 import { unstable_cache } from 'next/cache';
-import Hero from './hero';
+import Hero from './common/hero';
 import Destination from './destinations';
-import BlockGuide from './block-guide';
-import AdBanners from './ad-banners';
+import BlockGuide from './common/block-guide';
+import AdBanners from './common/ad-banners';
 import BsImport from '../bs-import';
 import Footer from './footer';
 

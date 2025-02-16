@@ -1,4 +1,4 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
 export const GET_COUNTRIES_CONTINENTS_QUERY = gql`
   query GetCountriesAndContinents {
@@ -85,62 +85,6 @@ export const GET_FILTERED_DESTINATION = gql`
     }
   }
 `;
-// query GetDestinations {
-//   getDestinations {
-//     id
-//     destinationName
-//     continent
-//     country
-//     bannerImage
-//     bannerHeading
-//     description
-//     images {
-//       id
-//       imageUrl
-//     }
-//     tours {
-//       id
-//       tourTitle
-//       price
-//       location
-//       images {
-//         id
-//         imageUrl
-//       }
-//       destination {
-//         id
-//         destinationName
-//       }
-//       tag {
-//         id
-//         name
-//         active
-//       }
-
-//     }
-//     attractions {
-//       id
-//       attractionTitle
-//       price
-//       location
-//       images {
-//         id
-//         imageUrl
-//       }
-//       tag {
-//         id
-//         name
-//         active
-//       }
-//     }
-//     tag {
-//         id
-//         name
-//         active
-//       }
-
-//   }
-// }
 
 export const GET_DESTINATION = gql`
   query GetDestination($getDestinationId: String!) {

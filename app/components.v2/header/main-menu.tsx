@@ -2,12 +2,13 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import clsx from 'clsx';
 
 const MainMenu = ({ style = '' }) => {
   const path = usePathname();
   return (
     <nav className="menu js-navList">
-      <ul className={`menu__nav ${style} -is-active`}>
+      <ul className={clsx('menu__nav -is-active', style)}>
         <li className={`${path === '/' ? 'current' : ''} `}>
           <Link href="/">Home</Link>
         </li>

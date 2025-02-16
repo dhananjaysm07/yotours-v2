@@ -7,7 +7,7 @@ const Copyright = () => {
         <div className="row x-gap-30 y-gap-10">
           <div className="col-auto">
             <div className="d-flex items-center">
-              © 2024 Yo Tours Private Limited. All rights reserved.
+              © 2025 Wanderung Guides Private Limited. All rights reserved.
             </div>
           </div>
         </div>

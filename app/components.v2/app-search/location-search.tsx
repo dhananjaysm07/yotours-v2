@@ -67,6 +67,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
               className="js-search js-dd-focus"
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
+              onClick={() => alert('HI')}
             />
           </div>
         </div>

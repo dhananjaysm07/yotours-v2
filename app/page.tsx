@@ -7,17 +7,19 @@ import 'swiper/css/scrollbar';
 import 'swiper/css/effect-cards';
 
 import CookieConsentBar from '@/app/components.v2/ui/cookie-consent';
-import Header from '@/app/components.v2/header';
+import Header from '@/app/components.v2/common/header';
 import { constants } from '@/constants';
-import { GET_CONTENT_QUERY } from '@/graphql/query';
 import { getApolloClient } from '@/lib/apollo/apollo-client-ssr';
 import { unstable_cache } from 'next/cache';
 import BsImport from './bs-import';
-import Hero from '@components.v2/hero';
+import Hero from '@/app/components.v2/common/hero';
 import Destination from '@/app/components.v2/destinations';
-import BlockGuide from '@components.v2/block-guide';
-import AdBanners from '@components.v2/ad-banners';
+import BlockGuide from '@/app/components.v2/common/block-guide';
+import AdBanners from '@/app/components.v2/common/ad-banners';
 import Footer from '@components.v2/footer';
+import { gql } from '@apollo/client';
+import DestinationsWeLove from './components.v2/ui/destinations-we-love';
+import { getContentData } from '@/lib/apollo/common-api-funcs';
 
 export const metadata: Metadata = getPageMeta(
   'Home',
@@ -37,27 +39,46 @@ export const metadata: Metadata = getPageMeta(
 
 // Only getContentData is processed here since it is required by more than one component
 
-const getContentData = unstable_cache(
+const DestinationWeLoveQuery = gql`
+  query GetDestinations {
+    getDestinations {
+      id
+      destinationName
+      country
+      continent
+      tours {
+        id
+        active
+      }
+    }
+  }
+`;
+
+const getDestinationsWeLove = unstable_cache(
   async () => {
     const client = getApolloClient();
     try {
       const data = await client.query({
-        query: GET_CONTENT_QUERY,
+        query: DestinationWeLoveQuery,
       });
       return data;
     } catch (error) {
-      console.error('Error fetching HERO CONTENT:', error);
+      console.error('Error fetching DestinationWeLoveQuery CONTENT:', error);
       return { data: null };
     }
   },
-  ['GET_CONTENT_QUERY'],
+  ['GET_DESTINATION_WE_LOVE_QUERY'],
   { revalidate: constants.revalidationSeconds }
 );
 
 const HomePage = async () => {
-  const {
-    data: { getContent },
-  } = await getContentData();
+  const [contentData, dwl] = await Promise.all([
+    getContentData(),
+    getDestinationsWeLove(),
+  ]);
+
+  const { getContent } = contentData.data;
+  const destinationsWeLove = dwl.data.getDestinations;
 
   const bokunChannelID = getContent.bokunChannelId;
 
@@ -105,6 +126,21 @@ const HomePage = async () => {
           bokunChannelID={bokunChannelID}
         />
       </main>
+      <section className="layout-pt-md layout-pb-md">
+        <div className="container">
+          <div className="row">
+            <div className="col-auto">
+              <div className="sectionTitle -md">
+                <h2 className="sectionTitle__title">Destinations we love</h2>
+              </div>
+            </div>
+          </div>
+
+          <div className="tabs -pills pt-40 js-tabs">
+            <DestinationsWeLove destinations={destinationsWeLove} />
+          </div>
+        </div>
+      </section>
       <Footer />
     </>
   );

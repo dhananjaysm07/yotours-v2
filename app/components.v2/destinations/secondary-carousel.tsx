@@ -4,10 +4,10 @@ import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
-import SocialShareLink from '../../components/common/socialShare';
 import { Navigation, Pagination } from 'swiper/modules';
 import isTextMatched from '@/utils/is-text-matched';
 import { TAB_OPTIONS } from './tours-and-attractions';
+import SocialShareLink from '../common/social-share-link';
 
 interface ImageData {
   imageUrl: string;

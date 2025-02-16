@@ -68,8 +68,8 @@ TourAndAttractionsProps) => {
                   <Link
                     href={
                       filterTab == TAB_OPTIONS.TOUR
-                        ? '/tours?continent={destinationName}'
-                        : '/attractions?continent={destinationName}'
+                        ? `/tours?continent=${destinationName}`
+                        : `/attractions?continent=${destinationName}`
                     }
                     className="button -md -pink-1 bg-pink-1-05 text-pink-1"
                     style={{ whiteSpace: 'nowrap' }}
@@ -107,8 +107,8 @@ TourAndAttractionsProps) => {
           <Link
             href={
               filterTab == 'tour'
-                ? '/tours?continent={destinationName}'
-                : '/attractions?continent={destinationName}'
+                ? `/tours?continent=${destinationName}`
+                : `/attractions?continent=${destinationName}`
             }
             className="button -md  bg-pink-1 text-white"
           >
