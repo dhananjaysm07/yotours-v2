@@ -50,14 +50,14 @@ const Header = () => {
 
           <div className="col-auto">
             <div className="d-flex items-center">
-              {/* <div className="d-flex items-center ml-20 is-menu-opened-hide md:d-none">
+              <div className="d-flex items-center ml-20 is-menu-opened-hide md:d-none">
                 <Link
-                  href="/others-pages/login"
+                  href="/login"
                   className="button px-30 fw-400 text-14 -white bg-white h-50 text-dark-1"
                 >
                   Work With Us
                 </Link>
-              </div> */}
+              </div>
               <div className="d-none xl:d-flex x-gap-20 items-center pl-30 text-white">
                 <div>
                   <button
