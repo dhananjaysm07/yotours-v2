@@ -1,17 +1,17 @@
 // app/destinations/page.tsx
 import { Metadata } from 'next';
-import InvertedHeader from '../components.v2/inverted-header';
-import Pagination from '../components.v2/common/pagination';
-import Footer from '../components.v2/footer';
-import DestinationGrid from '../components.v2/destination-list/destination-grid';
+import InvertedHeader from '../components/inverted-header';
+import Pagination from '../components/common/pagination';
+import Footer from '../components/footer';
+import DestinationGrid from '../components/destination-list/destination-grid';
 import {
   GET_FILTERED_DESTINATION,
   GET_COUNTRIES_CONTINENTS_QUERY,
   GET_DESTINATION_LOCATIONS,
 } from '@/graphql/query';
 import { getApolloClient } from '@/lib/apollo/apollo-client-ssr';
-import DestinationSidebar from '../components.v2/destination-list/destination-sidebar';
-import TopHeaderFilter from '../components.v2/common/top-header-filter';
+import DestinationSidebar from '../components/destination-list/destination-sidebar';
+import TopHeaderFilter from '../components/common/top-header-filter';
 import {
   CountriesContinentsData,
   GetFilteredDestinationResponse,

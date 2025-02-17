@@ -69,3 +69,32 @@ export interface TagData {
     name: string;
   }[];
 }
+
+export interface GetDestinations {
+  getDestinations: {
+    id: number;
+    destinationName: string;
+  }[];
+}
+export interface TourImage {
+  id: string;
+  imageUrl: string;
+}
+
+export interface Tour {
+  id: string;
+  tourTitle: string;
+  images: TourImage[];
+  location: string;
+  price: number;
+  currency: string;
+  tag: { name: string };
+  active: boolean;
+  tourBokunId: string;
+}
+
+export interface ToursByDestinationCity {
+  getDestinationByCity: {
+    tours: Tour[];
+  };
+}

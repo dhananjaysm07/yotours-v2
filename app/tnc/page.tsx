@@ -3,8 +3,8 @@ import styles from './tnc.module.scss';
 import getPageMeta from '@/lib/get-page-meta';
 import { Metadata } from 'next';
 import { getContentData } from '@/lib/apollo/common-api-funcs';
-import InvertedHeader from '../components.v2/inverted-header';
-import Footer from '../components.v2/footer';
+import InvertedHeader from '../components/inverted-header';
+import Footer from '../components/footer';
 
 export const metadata: Metadata = getPageMeta(
   'Terms and Conditions',

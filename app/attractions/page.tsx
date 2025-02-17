@@ -6,13 +6,13 @@ import {
   GET_COUNTRIES_CONTINENTS_ATTRACTIONS_QUERY,
   GET_ALL_TAGS,
 } from '@/graphql/query';
-import Pagination from '../components.v2/common/pagination';
-import InvertedHeader from '../components.v2/inverted-header';
-import Footer from '../components.v2/footer';
-import TopHeaderFilter from '../components.v2/common/top-header-filter';
+import Pagination from '../components/common/pagination';
+import InvertedHeader from '../components/inverted-header';
+import Footer from '../components/footer';
+import TopHeaderFilter from '../components/common/top-header-filter';
 import { unstable_cache } from 'next/cache';
 import { constants } from '@/constants';
-import Sidebar from '../components.v2/attractions/attraction-sidebar';
+import Sidebar from '../components/attractions/attraction-sidebar';
 import {
   AttractionCountriesContinentsData,
   GetFilteredAttractionsResponse,
@@ -22,7 +22,7 @@ import {
   getContentData,
   getUniqueDestinations,
 } from '@/lib/apollo/common-api-funcs';
-import AttractionProperties from '../components.v2/attractions/attraction-properties';
+import AttractionProperties from '../components/attractions/attraction-properties';
 
 export const metadata: Metadata = {
   title: 'Attractions | Yo Tours',

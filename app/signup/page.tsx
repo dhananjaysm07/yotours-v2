@@ -1,7 +1,7 @@
-import LoginWithSocial from '../components.v2/common/login-social';
-import SignUpForm from '../components.v2/common/sign-up-form';
-import Footer from '../components.v2/footer';
-import InvertedHeader from '../components.v2/inverted-header';
+import LoginWithSocial from '../components/common/login-social';
+import SignUpForm from '../components/common/sign-up-form';
+import Footer from '../components/footer';
+import InvertedHeader from '../components/inverted-header';
 
 const SignUp = () => {
   return (
