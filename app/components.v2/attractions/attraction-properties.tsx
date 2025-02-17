@@ -1,11 +1,9 @@
 // app/components.v2/attractions/attraction-properties.tsx
 'use client';
 import Image from 'next/image';
-
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
-import { useEffect, useState } from 'react';
-
+import { useEffect, useState, useRef } from 'react';
 import { Attraction } from '@/types';
 import SocialShareLink from '../common/social-share-link';
 import { createRoot } from 'react-dom/client';
@@ -20,65 +18,75 @@ interface AttractionPropertiesProps {
 const AttractionProperties = ({
   attractions,
   bokunChannelId,
-  currentPage,
-  dataPerPage,
 }: AttractionPropertiesProps) => {
   const [clickedDataSrc, setClickedDataSrc] = useState<string | null>(null);
+  const scriptLoaded = useRef(false);
+  const socialRootRef = useRef<any>(null);
 
   useEffect(() => {
-    if (bokunChannelId) {
-      const script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelId}`;
-      script.async = true;
-      document.body.appendChild(script);
-      script.onload = () => {
-        setTimeout(() => {
-          const widgetContainer = document.getElementById(
-            'bokun-modal-container'
-          );
-          if (widgetContainer) {
-            const socialDiv = document.createElement('div');
-            socialDiv.className = 'socialurl';
-            widgetContainer.appendChild(socialDiv);
-            const socialLink = (
-              <SocialShareLink bokunWidgetUrl={clickedDataSrc!} />
+    if (!bokunChannelId || scriptLoaded.current) return;
+
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelId}`;
+    script.async = true;
+    document.body.appendChild(script);
+    scriptLoaded.current = true;
+
+    script.onload = () => {
+      const checkWidgetContainer = () => {
+        const widgetContainer = document.getElementById('bokun-modal-container');
+        if (widgetContainer) {
+          // Clear existing social URL element
+          const existingSocial = widgetContainer.querySelector('.socialurl');
+          if (existingSocial) widgetContainer.removeChild(existingSocial);
+
+          const socialDiv = document.createElement('div');
+          socialDiv.className = 'socialurl';
+          widgetContainer.appendChild(socialDiv);
+
+          if (clickedDataSrc) {
+            socialRootRef.current = createRoot(socialDiv);
+            socialRootRef.current.render(
+              <SocialShareLink bokunWidgetUrl={clickedDataSrc} />
             );
-            if (socialLink.props.bokunWidgetUrl) {
-              const root = createRoot(socialDiv);
-              root.render(socialLink);
-            } else {
-              widgetContainer.removeChild(socialDiv);
-            }
-          } else {
-            console.error('Widget container not found.');
           }
-        }, 2000);
+        } else {
+          setTimeout(checkWidgetContainer, 100);
+        }
       };
-      return () => {
+      setTimeout(checkWidgetContainer, 100);
+    };
+
+    return () => {
+      if (scriptLoaded.current) {
         document.body.removeChild(script);
-      };
-    }
+        scriptLoaded.current = false;
+      }
+      if (socialRootRef.current) {
+        socialRootRef.current.unmount();
+      }
+    };
   }, [bokunChannelId, clickedDataSrc]);
 
   const handleBokunButtonClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    const dataSrc = event.currentTarget.getAttribute('data-src');
-    setClickedDataSrc(dataSrc);
+    const target = event.currentTarget;
+    const dataSrc = target.getAttribute('data-src');
+    if (dataSrc) setClickedDataSrc(dataSrc);
   };
-
-  console.log('attractions', attractions);
-  console.log('bokunChannelId: ', bokunChannelId);
 
   return (
     <>
-      {attractions.map((item, index) => (
+      {attractions.map((item) => (
         <div
           key={item?.id}
-          // data-aos="fade"
-          // data-aos-delay={(index + 1) * 100}
-          style={{ cursor: 'pointer' }}
           className="bokunButton -type-1 rounded-4 hover-inside-slider col-lg-4 col-sm-6"
-          data-src={`https://widgets.bokun.io/online-sales/${bokunChannelId}/experience/${item?.attractionBokunId}?partialView=1`}
+          style={{ cursor: 'pointer' }}
+          data-src={
+            item?.attractionBokunId
+              ? `https://widgets.bokun.io/online-sales/${bokunChannelId}/experience/${item.attractionBokunId}?partialView=1`
+              : undefined
+          }
           onClick={handleBokunButtonClick}
         >
           <div className="tourCard__image">

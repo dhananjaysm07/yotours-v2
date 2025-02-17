@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import CountryContinentFilter from '../common/country-continent-filter';
 import MainFilterSearchBox from '../common/main-filter-search-box';
@@ -14,33 +14,39 @@ interface CountriesContinentsData {
 
 interface DestinationSidebarProps {
   countriesContinentsData: CountriesContinentsData;
-  initialContinents?: string[];
-  initialCountries?: string[];
-  initialSearchValue?: string;
   uniqueDestinations: string[];
 }
 
 const DestinationSidebar: React.FC<DestinationSidebarProps> = ({
   countriesContinentsData,
-  initialContinents = [],
-  initialCountries = [],
-  initialSearchValue = '',
   uniqueDestinations,
 }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [selectedContinents, setSelectedContinents] =
-    useState<string[]>(initialContinents);
-  const [selectedCountries, setSelectedCountries] =
-    useState<string[]>(initialCountries);
+  const [selectedContinents, setSelectedContinents] = useState<string[]>([]);
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [searchValue, setSearchValue] = useState<string>('');
 
-  const updateSearchParams = (continents: string[], countries: string[]) => {
+  useEffect(() => {
+    const continents = searchParams.get('continent')?.split(',') || [];
+    const countries = searchParams.get('country')?.split(',') || [];
+    const location = searchParams.get('location') || '';
+
+    setSelectedContinents(continents);
+    setSelectedCountries(countries);
+    setSearchValue(location);
+  }, [searchParams]);
+
+  const updateSearchParams = (
+    continents: string[],
+    countries: string[],
+    location: string = ''
+  ) => {
     const current = new URLSearchParams(Array.from(searchParams.entries()));
 
     if (continents.length > 0) {
       current.set('continent', continents.join(','));
-      current.delete('country'); // Remove countries when a continent is selected
     } else {
       current.delete('continent');
     }
@@ -51,7 +57,12 @@ const DestinationSidebar: React.FC<DestinationSidebarProps> = ({
       current.delete('country');
     }
 
-    current.delete('location');
+    if (location) {
+      current.set('location', location);
+    } else {
+      current.delete('location');
+    }
+
     current.delete('page');
 
     const search_string = current.toString();
@@ -64,19 +75,26 @@ const DestinationSidebar: React.FC<DestinationSidebarProps> = ({
     const newContinents = selectedContinents.includes(category)
       ? selectedContinents.filter((item) => item !== category)
       : [...selectedContinents, category];
-
+    setSearchValue('');
     setSelectedContinents(newContinents);
     setSelectedCountries([]); // Clear selected countries when selecting a continent
-    updateSearchParams(newContinents, []);
+    updateSearchParams(newContinents, [], '');
   };
 
   const handleCountryChange = (category: string) => {
     const newCountries = selectedCountries.includes(category)
       ? selectedCountries.filter((item) => item !== category)
       : [...selectedCountries, category];
-
+    setSearchValue('');
     setSelectedCountries(newCountries);
-    updateSearchParams(selectedContinents, newCountries); // Preserve continent selection
+    updateSearchParams(selectedContinents, newCountries, '');
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchValue(value);
+    setSelectedContinents([]); // Clear continents when a location is entered
+    setSelectedCountries([]); // Clear countries when a location is entered
+    updateSearchParams([], [], value); // Update URL with only the location
   };
 
   return (
@@ -88,7 +106,8 @@ const DestinationSidebar: React.FC<DestinationSidebarProps> = ({
             <MainFilterSearchBox
               currentPage="destinations"
               locations={uniqueDestinations}
-              initialSearchValue={initialSearchValue}
+              initialSearchValue={searchValue}
+              onSearch={handleSearch}
             />
           </div>
         </div>

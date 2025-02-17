@@ -1,4 +1,3 @@
-// search-bar.tsx
 import React, { useState, useRef, useEffect } from 'react';
 
 interface SearchBarProps {
@@ -15,6 +14,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState(searchValue);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setInputValue(searchValue);
+  }, [searchValue]);
 
   const filteredLocations = locations.filter((location) =>
     location.toLowerCase().includes(inputValue.toLowerCase())

@@ -143,7 +143,7 @@ export default async function AttractionsPage({
             <div className="col-xl-3">
               <aside className="sidebar y-gap-40 xl:d-none">
                 <Sidebar
-                  categories={[]}
+                  categories={tagData.getAllTags.map((el) => el.name)}
                   uniqueAttractionLocations={
                     uniqueDestinationLocations.getUniqueDestinationLocations
                   }

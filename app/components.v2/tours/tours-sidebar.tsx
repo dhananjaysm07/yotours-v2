@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import CountryContinentFilter from '../common/country-continent-filter';
 import MainFilterSearchBox from '../common/main-filter-search-box';
@@ -18,61 +18,52 @@ interface SidebarProps {
   allTags: string[];
   uniqueTourLocations: string[];
   countriesContinentsData: CountriesContinentsData;
-  initialContinents?: string[];
-  initialCountries?: string[];
-  initialSearchValue?: string;
-  initialTags?: string[];
-  initialPriceMin?: number;
-  initialPriceMax?: number;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
   allTags,
   uniqueTourLocations,
   countriesContinentsData,
-  initialContinents = [],
-  initialCountries = [],
-  initialSearchValue = '',
-  initialTags = [],
-  initialPriceMin = 0,
-  initialPriceMax = 100000,
 }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const [selectedContinents, setSelectedContinents] = useState<string[]>([]);
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [searchValue, setSearchValue] = useState<string>('');
   const [priceRange, setPriceRange] = useState({
-    min: initialPriceMin,
-    max: initialPriceMax,
+    min: 0,
+    max: 100000,
   });
 
-  const [selectedContinents, setSelectedContinents] =
-    useState<string[]>(initialContinents);
-  const [selectedCountries, setSelectedCountries] =
-    useState<string[]>(initialCountries);
-  const [selectedTags, setSelectedTags] = useState<string[]>(initialTags);
+  useEffect(() => {
+    const continents = searchParams.get('continent')?.split(',') || [];
+    const countries = searchParams.get('country')?.split(',') || [];
+    const tags = searchParams.get('tagName')?.split(',') || [];
+    const location = searchParams.get('location') || '';
+    const priceMin = parseInt(searchParams.get('priceMin') || '0');
+    const priceMax = parseInt(searchParams.get('priceMax') || '100000');
 
-  const handlePriceChange = (min: number, max: number) => {
-    setPriceRange({ min, max }); // Update local state
-    updateSearchParams(
-      selectedContinents,
-      selectedCountries,
-      selectedTags,
-      min,
-      max
-    ); // Update URL
-  };
+    setSelectedContinents(continents);
+    setSelectedCountries(countries);
+    setSelectedTags(tags);
+    setSearchValue(location);
+    setPriceRange({ min: priceMin, max: priceMax });
+  }, [searchParams]);
 
   const updateSearchParams = (
     continents: string[],
     countries: string[],
     tags: string[],
-    priceMin: number,
-    priceMax: number
+    location: string = '',
+    priceMin: number = priceRange.min,
+    priceMax: number = priceRange.max
   ) => {
     const current = new URLSearchParams(Array.from(searchParams.entries()));
 
     if (continents.length > 0) {
       current.set('continent', continents.join(','));
-      current.delete('country');
     } else {
       current.delete('continent');
     }
@@ -89,6 +80,12 @@ const Sidebar: React.FC<SidebarProps> = ({
       current.delete('tagName');
     }
 
+    if (location) {
+      current.set('location', location);
+    } else {
+      current.delete('location');
+    }
+
     if (priceMin > 0 || priceMax < 100000) {
       current.set('priceMin', priceMin.toString());
       current.set('priceMax', priceMax.toString());
@@ -97,7 +94,6 @@ const Sidebar: React.FC<SidebarProps> = ({
       current.delete('priceMax');
     }
 
-    current.delete('location');
     current.delete('page');
 
     const search_string = current.toString();
@@ -110,45 +106,51 @@ const Sidebar: React.FC<SidebarProps> = ({
     const newContinents = selectedContinents.includes(category)
       ? selectedContinents.filter((item) => item !== category)
       : [...selectedContinents, category];
-
+    setSearchValue('');
     setSelectedContinents(newContinents);
-    setSelectedCountries([]);
-    updateSearchParams(
-      newContinents,
-      [],
-      selectedTags,
-      priceRange.min,
-      priceRange.max
-    );
+    setSelectedCountries([]); // Clear selected countries when selecting a continent
+    updateSearchParams(newContinents, [], selectedTags, '');
   };
 
   const handleCountryChange = (category: string) => {
     const newCountries = selectedCountries.includes(category)
       ? selectedCountries.filter((item) => item !== category)
       : [...selectedCountries, category];
-
+    setSearchValue('');
     setSelectedCountries(newCountries);
-    updateSearchParams(
-      selectedContinents,
-      newCountries,
-      selectedTags,
-      priceRange.min,
-      priceRange.max
-    );
+    updateSearchParams(selectedContinents, newCountries, selectedTags, '');
   };
 
   const handleTagChange = (tag: string) => {
     const newTags = selectedTags.includes(tag)
       ? selectedTags.filter((item) => item !== tag)
       : [...selectedTags, tag];
-
     setSelectedTags(newTags);
     updateSearchParams(
       selectedContinents,
       selectedCountries,
       newTags,
-      priceRange.min,
-      priceRange.max
+      searchValue
+    );
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchValue(value);
+    setSelectedContinents([]); // Clear continents when a location is entered
+    setSelectedCountries([]); // Clear countries when a location is entered
+    setSelectedTags([]); // Clear tags when a location is entered
+    updateSearchParams([], [], [], value);
+  };
+
+  const handlePriceChange = (min: number, max: number) => {
+    setPriceRange({ min, max });
+    updateSearchParams(
+      selectedContinents,
+      selectedCountries,
+      selectedTags,
+      searchValue,
+      min,
+      max
     );
   };
 
@@ -161,7 +163,8 @@ const Sidebar: React.FC<SidebarProps> = ({
             <MainFilterSearchBox
               currentPage="tours"
               locations={uniqueTourLocations}
-              initialSearchValue={initialSearchValue}
+              initialSearchValue={searchValue}
+              onSearch={handleSearch}
             />
           </div>
         </div>
@@ -227,12 +230,13 @@ const Sidebar: React.FC<SidebarProps> = ({
           />
         </div>
       </div>
+
       <div className="sidebar__item -no-border">
         <h5 className="text-18 fw-500 mb-10">Price Range</h5>
         <div className="sidebar-checkbox">
           <PriceSlider
-            initialMin={initialPriceMin}
-            initialMax={initialPriceMax}
+            initialMin={priceRange.min}
+            initialMax={priceRange.max}
             onChange={handlePriceChange}
           />
         </div>

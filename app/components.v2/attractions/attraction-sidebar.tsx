@@ -1,12 +1,10 @@
-// components.v2/attractions/sidebar.tsx
 'use client';
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import CountryContinentFilter from '../common/country-continent-filter';
 import MainFilterSearchBox from '../common/main-filter-search-box';
 import PriceSlider from '../common/price-slider';
-
+import TagFilter from '../common/tag-filter';
 
 interface CountriesContinentsData {
   getCountriesAndContinentsForAttractions: {
@@ -19,142 +17,169 @@ interface CountriesContinentsData {
 interface SidebarProps {
   uniqueAttractionLocations: string[];
   countriesContinentsData: CountriesContinentsData;
-  categories: string[]; // List of categories (tags)
-  initialContinents?: string[];
-  initialCountries?: string[];
-  initialCategories?: string[];
-  initialSearchValue?: string;
-  initialPriceMin?: number;
-  initialPriceMax?: number;
+  categories: string[];
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
   uniqueAttractionLocations,
   countriesContinentsData,
   categories,
-  initialContinents = [],
-  initialCountries = [],
-  initialCategories = [],
-  initialSearchValue = '',
-  initialPriceMin = 0,
-  initialPriceMax = 1000,
 }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Internal state for selected filters
-  const [selectedContinents, setSelectedContinents] =
-    useState<string[]>(initialContinents);
-  const [selectedCountries, setSelectedCountries] =
-    useState<string[]>(initialCountries);
-  const [selectedCategories, setSelectedCategories] =
-    useState<string[]>(initialCategories);
+  const [selectedContinents, setSelectedContinents] = useState<string[]>([]);
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [searchValue, setSearchValue] = useState<string>('');
   const [priceRange, setPriceRange] = useState({
-    min: initialPriceMin,
-    max: initialPriceMax,
+    min: 0,
+    max: 100000,
   });
 
-  // Update URL query parameters when filters change
+  useEffect(() => {
+    const continents = searchParams.get('continent')?.split(',') || [];
+    const countries = searchParams.get('country')?.split(',') || [];
+    const categoryList = searchParams.get('tagName')?.split(',') || [];
+    const location = searchParams.get('location') || '';
+    const priceMin = parseInt(searchParams.get('priceMin') || '0');
+    const priceMax = parseInt(searchParams.get('priceMax') || '100000');
+
+    setSelectedContinents(continents);
+    setSelectedCountries(countries);
+    setSelectedCategories(categoryList);
+    setSearchValue(location);
+    setPriceRange({ min: priceMin, max: priceMax });
+  }, [searchParams]);
+
   const updateSearchParams = (
     continents: string[],
     countries: string[],
     categories: string[],
-    priceMin?: number,
-    priceMax?: number,
-    resetPage: boolean = true
+    location: string = '',
+    newPriceMin: number = priceRange.min,
+    newPriceMax: number = priceRange.max
   ) => {
-    const newSearchParams = new URLSearchParams(searchParams.toString());
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
 
     if (continents.length > 0) {
-      newSearchParams.set('continent', continents.join(','));
+      current.set('continent', continents.join(','));
     } else {
-      newSearchParams.delete('continent');
+      current.delete('continent');
     }
 
     if (countries.length > 0) {
-      newSearchParams.set('country', countries.join(','));
+      current.set('country', countries.join(','));
     } else {
-      newSearchParams.delete('country');
+      current.delete('country');
     }
 
     if (categories.length > 0) {
-      newSearchParams.set('category', categories.join(','));
+      current.set('tagName', categories.join(','));
     } else {
-      newSearchParams.delete('category');
+      current.delete('tagName');
     }
 
-    if (priceMin !== undefined && priceMax !== undefined) {
-      newSearchParams.set('priceMin', priceMin.toString());
-      newSearchParams.set('priceMax', priceMax.toString());
+    if (location) {
+      current.set('location', location);
+    } else {
+      current.delete('location');
     }
 
-    if (resetPage) {
-      newSearchParams.delete('page'); // Reset to first page on filter change
+    // Only update price params if they differ from defaults
+    if (newPriceMin > 0 || newPriceMax < 100000) {
+      current.set('priceMin', newPriceMin.toString());
+      current.set('priceMax', newPriceMax.toString());
+    } else {
+      current.delete('priceMin');
+      current.delete('priceMax');
     }
 
-    router.push(`/attractions?${newSearchParams.toString()}`);
+    current.delete('page');
+
+    const search_string = current.toString();
+    const query = search_string ? `?${search_string}` : '';
+
+    router.push(`/attractions${query}`);
   };
 
-  // Handle continent selection
-  const handleContinentChange = (continent: string) => {
-    const newContinents = selectedContinents.includes(continent)
-      ? selectedContinents.filter((c) => c !== continent)
-      : [...selectedContinents, continent];
-
+  // Other handlers remain the same...
+  const handleContinentChange = (category: string) => {
+    const newContinents = selectedContinents.includes(category)
+      ? selectedContinents.filter((item) => item !== category)
+      : [...selectedContinents, category];
+    setSearchValue('');
     setSelectedContinents(newContinents);
-    setSelectedCountries([]); // Reset countries when continents change
-    updateSearchParams(newContinents, [], selectedCategories);
+    setSelectedCountries([]);
+    updateSearchParams(newContinents, [], selectedCategories, '');
   };
 
-  // Handle country selection
-  const handleCountryChange = (country: string) => {
-    const newCountries = selectedCountries.includes(country)
-      ? selectedCountries.filter((c) => c !== country)
-      : [...selectedCountries, country];
-
+  const handleCountryChange = (category: string) => {
+    const newCountries = selectedCountries.includes(category)
+      ? selectedCountries.filter((item) => item !== category)
+      : [...selectedCountries, category];
+    setSearchValue('');
     setSelectedCountries(newCountries);
-    updateSearchParams(selectedContinents, newCountries, selectedCategories);
+    updateSearchParams(
+      selectedContinents,
+      newCountries,
+      selectedCategories,
+      ''
+    );
   };
 
-  // Handle category selection
   const handleCategoryChange = (category: string) => {
     const newCategories = selectedCategories.includes(category)
-      ? selectedCategories.filter((c) => c !== category)
+      ? selectedCategories.filter((item) => item !== category)
       : [...selectedCategories, category];
-
     setSelectedCategories(newCategories);
-    updateSearchParams(selectedContinents, selectedCountries, newCategories);
+    updateSearchParams(
+      selectedContinents,
+      selectedCountries,
+      newCategories,
+      searchValue
+    );
   };
 
-  // Handle price range change
+  const handleSearch = (value: string) => {
+    setSearchValue(value);
+    setSelectedContinents([]);
+    setSelectedCountries([]);
+    setSelectedCategories([]);
+    updateSearchParams([], [], [], value);
+  };
+
+  // Updated price change handler
   const handlePriceChange = (min: number, max: number) => {
     setPriceRange({ min, max });
     updateSearchParams(
       selectedContinents,
       selectedCountries,
       selectedCategories,
+      searchValue,
       min,
-      max,
-      false
+      max
     );
   };
 
-  // Calculate counts for continents and countries
-  const continentCounts = countriesContinentsData.getCountriesAndContinentsForAttractions.reduce(
-    (acc, item) => {
-      acc[item.continent] = (acc[item.continent] || 0) + item.attractionCount;
-      return acc;
-    },
-    {} as Record<string, number>
-  );
+  // Calculate counts remain the same...
+  const continentCounts =
+    countriesContinentsData.getCountriesAndContinentsForAttractions.reduce(
+      (acc, item) => {
+        acc[item.continent] = (acc[item.continent] || 0) + item.attractionCount;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
-  const countryCounts = countriesContinentsData.getCountriesAndContinentsForAttractions.reduce(
-    (acc, item) => {
-      acc[item.country] = (acc[item.country] || 0) + item.attractionCount;
-      return acc;
-    },
-    {} as Record<string, number>
-  );
+  const countryCounts =
+    countriesContinentsData.getCountriesAndContinentsForAttractions.reduce(
+      (acc, item) => {
+        acc[item.country] = (acc[item.country] || 0) + item.attractionCount;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
   return (
     <>
@@ -163,22 +188,23 @@ const Sidebar: React.FC<SidebarProps> = ({
           <h5 className="text-18 fw-500 mb-10">Search Attractions</h5>
           <div className="row y-gap-20 pt-20">
             <MainFilterSearchBox
-              locations={uniqueAttractionLocations}
               currentPage="attractions"
-              initialSearchValue={initialSearchValue}
+              locations={uniqueAttractionLocations}
+              initialSearchValue={searchValue}
+              onSearch={handleSearch}
             />
           </div>
         </div>
       </div>
 
       <div className="sidebar__item -no-border">
-        <h5 className="text-18 fw-500 mb-10">Categories</h5>
+        <h5 className="text-18 fw-500 mb-10">Category Types</h5>
         <div className="sidebar-checkbox">
-          {/* <CategoryTypes
-            categories={categories}
-            selectedList={selectedCategories}
+          <TagFilter
+            tags={categories}
+            selectedTags={selectedCategories}
             onSelectionChange={handleCategoryChange}
-          /> */}
+          />
         </div>
       </div>
 
@@ -221,8 +247,8 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className="sidebar__item pb-30">
         <h5 className="text-18 fw-500 mb-10">Price</h5>
         <PriceSlider
-          initialMin={initialPriceMin}
-          initialMax={initialPriceMax}
+          initialMin={priceRange.min}
+          initialMax={priceRange.max}
           onChange={handlePriceChange}
         />
       </div>
