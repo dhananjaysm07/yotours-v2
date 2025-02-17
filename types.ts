@@ -18,6 +18,23 @@ export interface Tag {
   count?: number; // Optional count of attractions for this tag
 }
 
+export interface ContentData {
+  id?: string;
+  heroImage?: string;
+  heroHeading?: string;
+  heroSubheading?: string;
+  rightDiscountImage: string;
+  leftDiscountImage: string;
+  footerLinks?: string[];
+  footerLogo?: string;
+  socialLinks?: string[];
+  tnc?: string;
+  privacy?: string;
+  about?: string;
+  agent?: string;
+  bokunChannelId?: string;
+}
+
 export interface GetFilteredDestinationResponse {
   getFilteredDestination: {
     destinations: Destination[];
@@ -55,6 +72,7 @@ export interface Attraction {
   images: { imageUrl: string }[];
   tag: { name: string };
   attractionBokunId: string;
+  active?: boolean;
 }
 
 export interface GetFilteredAttractionsResponse {
@@ -97,4 +115,37 @@ export interface ToursByDestinationCity {
   getDestinationByCity: {
     tours: Tour[];
   };
+}
+
+export interface Image {
+  id: string;
+  imageUrl: string;
+}
+
+export interface Tag {
+  id: string;
+  name: string;
+  active?: boolean;
+}
+
+export interface Car {
+  id: string;
+  active: boolean;
+  carTitle: string;
+  carDescription: string;
+  carHyperlink: string;
+  carBokunId: string;
+  images: Image[];
+  tag: Tag;
+  price: number;
+  currency: string;
+}
+
+export interface DestinationByCity {
+  attractions: Attraction[];
+  cars: Car[];
+}
+
+export interface GetDestinationByCityResponse {
+  getDestinationByCity: DestinationByCity;
 }

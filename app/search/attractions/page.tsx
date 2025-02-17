@@ -3,10 +3,10 @@ import InvertedHeader from '@/app/components/inverted-header';
 import { Metadata } from 'next';
 import getPageMeta from '@/lib/get-page-meta';
 import { getContentData } from '@/lib/apollo/common-api-funcs';
-import { GET_TOUR_FOR_DESTINATION } from '@/graphql/single-queries';
 import { getApolloClient } from '@/lib/apollo/apollo-client-ssr';
-import Tours from '@/app/components/destination-details/tours';
-import { ToursByDestinationCity } from '@/types';
+import Activity from '@/app/components/common/activity';
+import { GetDestinationByCityResponse } from '@/types';
+import { GET_ATTRACTION_CARS_FOR_DESTINATION } from '@/graphql/single-queries';
 
 export const metadata: Metadata = getPageMeta(
   'Attractions Search',
@@ -15,11 +15,11 @@ export const metadata: Metadata = getPageMeta(
 
 const getToursByDestination = async (
   destinationName: string
-): Promise<ToursByDestinationCity> => {
+): Promise<GetDestinationByCityResponse> => {
   const client = getApolloClient();
   try {
-    const { data } = await client.query<ToursByDestinationCity>({
-      query: GET_TOUR_FOR_DESTINATION,
+    const { data } = await client.query<GetDestinationByCityResponse>({
+      query: GET_ATTRACTION_CARS_FOR_DESTINATION,
       variables: {
         destinationName: destinationName,
       },
@@ -28,7 +28,7 @@ const getToursByDestination = async (
     return data;
   } catch (error) {
     console.error('Error fetching filtered attractions:', error);
-    return { getDestinationByCity: { tours: [] } };
+    return { getDestinationByCity: { attractions: [], cars: [] } };
   }
 };
 
@@ -59,16 +59,16 @@ const SearchedAttractions = async ({
             </div>
           </div>
 
-          {tours?.getDestinationByCity?.tours.length > 0 ? (
+          {tours?.getDestinationByCity?.attractions.length > 0 ? (
             <div className="relative pt-40 sm:pt-20">
-              <Tours
-                tours={tours.getDestinationByCity.tours}
-                contentData={contentData.data}
+              <Activity
+                attractions={tours.getDestinationByCity.attractions}
+                contentData={contentData.data.getContent}
               />
             </div>
           ) : (
             <div className="relative pt-40 text-black sm:pt-20">
-              <h1>No Tours Found </h1>
+              <h1>No Attractions Found </h1>
             </div>
           )}
         </div>

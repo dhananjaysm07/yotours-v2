@@ -100,6 +100,10 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
         spaceBetween={20}
         slidesPerView={1.1}
         className="overflow-visible swiperpagination"
+        scrollbar={{
+          el: `.js-popular-destination-scrollbar`,
+          draggable: true,
+        }}
         modules={[Pagination, Navigation]}
         pagination={{ clickable: true }}
         navigation={{
