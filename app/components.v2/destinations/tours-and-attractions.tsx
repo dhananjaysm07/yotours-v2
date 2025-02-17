@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import React, { useState } from 'react';
-import TabGroup from './tab-group';
-import TourAttractionCarousel from './secondary-carousel';
+import Link from "next/link";
+import React, { useState } from "react";
+import TabGroup from "./tab-group";
+import TourAttractionCarousel from "./secondary-carousel";
 
 export const TAB_OPTIONS = {
-  TOUR: 'TOUR',
-  ATTRACTION: 'ATTRACTION',
+  TOUR: "TOUR",
+  ATTRACTION: "ATTRACTION",
 };
 
 interface ImageData {
@@ -72,10 +72,10 @@ TourAndAttractionsProps) => {
                         : `/attractions?continent=${destinationName}`
                     }
                     className="button -md -pink-1 bg-pink-1-05 text-pink-1"
-                    style={{ whiteSpace: 'nowrap' }}
+                    style={{ whiteSpace: "nowrap" }}
                   >
-                    View All{' '}
-                    {filterTab == TAB_OPTIONS.TOUR ? 'Tours' : 'Attractions'}
+                    View All{" "}
+                    {filterTab == TAB_OPTIONS.TOUR ? "Tours" : "Attractions"}
                     <div className="icon-arrow-top-right ml-15" />
                   </Link>
                 </div>
@@ -106,14 +106,14 @@ TourAndAttractionsProps) => {
         <div className="col-auto ml-auto">
           <Link
             href={
-              filterTab == 'tour'
+              filterTab == "tour"
                 ? `/tours?continent=${destinationName}`
                 : `/attractions?continent=${destinationName}`
             }
             className="button -md  bg-pink-1 text-white"
           >
-            View All{' '}
-            {filterTab == 'tour'
+            View All{" "}
+            {filterTab == "tour"
               ? `Tours in ${destinationName}`
               : `Attractions in ${destinationName}`}
             <div className="icon-arrow-top-right ml-15" />

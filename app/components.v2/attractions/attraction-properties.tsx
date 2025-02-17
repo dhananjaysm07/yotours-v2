@@ -1,12 +1,24 @@
-// app/components.v2/attractions/attraction-properties.tsx
-'use client';
-import Image from 'next/image';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper/modules';
-import { useEffect, useState, useRef } from 'react';
-import { Attraction } from '@/types';
-import SocialShareLink from '../common/social-share-link';
-import { createRoot } from 'react-dom/client';
+"use client";
+
+import Image from "next/image";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper/modules";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { Attraction } from "@/types";
+import SocialShareLink from "../common/social-share-link";
+import { createRoot } from "react-dom/client";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+
+// Declare global window type
+declare global {
+  interface Window {
+    BokunWidgetLoader?: {
+      reset: () => void;
+    };
+  }
+}
 
 interface AttractionPropertiesProps {
   attractions: Attraction[];
@@ -20,68 +32,119 @@ const AttractionProperties = ({
   bokunChannelId,
 }: AttractionPropertiesProps) => {
   const [clickedDataSrc, setClickedDataSrc] = useState<string | null>(null);
-  const scriptLoaded = useRef(false);
+  const [scriptLoaded, setScriptLoaded] = useState(false);
   const socialRootRef = useRef<any>(null);
 
+  // Load Bokun script only once
   useEffect(() => {
-    if (!bokunChannelId || scriptLoaded.current) return;
+    if (bokunChannelId && !scriptLoaded) {
+      const existingScript = document.querySelector('script[src*="bokun.io"]');
 
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelId}`;
-    script.async = true;
-    document.body.appendChild(script);
-    scriptLoaded.current = true;
+      if (!existingScript) {
+        const script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelId}`;
+        script.async = true;
 
-    script.onload = () => {
-      const checkWidgetContainer = () => {
-        const widgetContainer = document.getElementById('bokun-modal-container');
+        script.onload = () => {
+          setScriptLoaded(true);
+        };
+
+        document.body.appendChild(script);
+
+        return () => {
+          document.body.removeChild(script);
+          setScriptLoaded(false);
+        };
+      } else {
+        setScriptLoaded(true);
+      }
+    }
+  }, [bokunChannelId]);
+
+  // Handle widget container and social share
+  useEffect(() => {
+    if (scriptLoaded && clickedDataSrc) {
+      const initializeWidget = () => {
+        const widgetContainer = document.getElementById(
+          "bokun-modal-container"
+        );
         if (widgetContainer) {
-          // Clear existing social URL element
-          const existingSocial = widgetContainer.querySelector('.socialurl');
-          if (existingSocial) widgetContainer.removeChild(existingSocial);
+          // Remove existing social div if present
+          const existingSocialDiv = widgetContainer.querySelector(".socialurl");
+          if (existingSocialDiv) {
+            widgetContainer.removeChild(existingSocialDiv);
+          }
 
-          const socialDiv = document.createElement('div');
-          socialDiv.className = 'socialurl';
+          // Create new social div
+          const socialDiv = document.createElement("div");
+          socialDiv.className = "socialurl";
           widgetContainer.appendChild(socialDiv);
 
-          if (clickedDataSrc) {
-            socialRootRef.current = createRoot(socialDiv);
-            socialRootRef.current.render(
-              <SocialShareLink bokunWidgetUrl={clickedDataSrc} />
-            );
+          // Unmount previous root if it exists
+          if (socialRootRef.current) {
+            socialRootRef.current.unmount();
           }
-        } else {
-          setTimeout(checkWidgetContainer, 100);
+
+          // Create new root and render social link
+          socialRootRef.current = createRoot(socialDiv);
+          socialRootRef.current.render(
+            <SocialShareLink bokunWidgetUrl={clickedDataSrc} />
+          );
         }
       };
-      setTimeout(checkWidgetContainer, 100);
+
+      // Give the widget time to mount
+      const timer = setTimeout(initializeWidget, 1000);
+      return () => {
+        clearTimeout(timer);
+        if (socialRootRef.current) {
+          socialRootRef.current.unmount();
+        }
+      };
+    }
+  }, [clickedDataSrc, scriptLoaded]);
+
+  const handleBokunButtonClick = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      const dataSrc = event.currentTarget.getAttribute("data-src");
+      if (dataSrc) {
+        setClickedDataSrc(dataSrc);
+
+        // Reset any existing Bokun widgets
+        if (window.BokunWidgetLoader) {
+          window.BokunWidgetLoader.reset();
+        }
+      }
+    },
+    []
+  );
+
+  const getBadgeClasses = (tagName: string) => {
+    const baseClasses =
+      "py-5 px-15 relative rounded-right-4 text-12 lh-16 fw-500 uppercase";
+    const specialCases = {
+      "Big Sale": "bg-dark-1 text-white",
+      "Top Selling Tours": "bg-blue-1 text-white",
+      "top rated": "bg-yellow-1 text-dark-1",
+      default: "bg-pink-1 text-white",
     };
 
-    return () => {
-      if (scriptLoaded.current) {
-        document.body.removeChild(script);
-        scriptLoaded.current = false;
-      }
-      if (socialRootRef.current) {
-        socialRootRef.current.unmount();
-      }
-    };
-  }, [bokunChannelId, clickedDataSrc]);
+    const match = Object.entries(specialCases).find(([key]) =>
+      tagName.toLowerCase().includes(key.toLowerCase())
+    );
 
-  const handleBokunButtonClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    const target = event.currentTarget;
-    const dataSrc = target.getAttribute('data-src');
-    if (dataSrc) setClickedDataSrc(dataSrc);
+    return `${baseClasses} ${match ? match[1] : specialCases.default}`;
   };
 
   return (
     <>
-      {attractions.map((item) => (
+      {attractions.map((item, index) => (
         <div
           key={item?.id}
-          className="bokunButton -type-1 rounded-4 hover-inside-slider col-lg-4 col-sm-6"
-          style={{ cursor: 'pointer' }}
+          className="bokunButton tourCard -type-1 rounded-4 hover-inside-slider col-lg-4 col-sm-6"
+          data-aos="fade"
+          data-aos-delay={(index + 1) * 100}
           data-src={
             item?.attractionBokunId
               ? `https://widgets.bokun.io/online-sales/${bokunChannelId}/experience/${item.attractionBokunId}?partialView=1`
@@ -89,26 +152,28 @@ const AttractionProperties = ({
           }
           onClick={handleBokunButtonClick}
         >
-          <div className="tourCard__image">
+          <div
+            className="tourCard__image"
+            style={{ position: "relative", overflow: "visible" }}
+          >
             <div className="cardImage ratio ratio-2:1">
               <div className="cardImage__content">
                 <div className="cardImage-slider rounded-4 overflow-hidden custom_inside-slider">
                   <Swiper
                     className="mySwiper"
                     modules={[Pagination, Navigation]}
-                    pagination={{
-                      clickable: true,
-                    }}
-                    navigation={true}
+                    pagination={{ clickable: true }}
+                    navigation
                   >
                     {item?.images?.map((slide, i) => (
                       <SwiperSlide key={i}>
                         <Image
                           width={300}
                           height={300}
+                          src={slide.imageUrl || "/img/placeholder-img.webp"}
+                          alt={`${item.attractionTitle} - Image ${i + 1}`}
                           className="rounded-4 col-12 js-lazy"
-                          src={slide.imageUrl}
-                          alt="image"
+                          priority={i === 0}
                         />
                       </SwiperSlide>
                     ))}
@@ -117,28 +182,22 @@ const AttractionProperties = ({
               </div>
             </div>
 
-            <div className="cardImage__wishlist">
+            <div
+              className="cardImage__wishlist"
+              style={{ position: "absolute", top: "10px", right: "10px" }}
+            >
               <button className="button -blue-1 bg-white size-30 rounded-full shadow-2">
                 <i className="icon-heart text-12" />
               </button>
             </div>
 
             {item?.tag?.name && (
-              <div className="cardImage__leftBadge">
-                <div
-                  className={`py-5 px-15 rounded-right-4 text-12 lh-16 fw-500 uppercase ${
-                    item?.tag?.name === 'Big Sale'
-                      ? 'bg-dark-1 text-white'
-                      : item?.tag?.name === 'Top Selling Tours'
-                      ? 'bg-blue-1 text-white'
-                      : item?.tag?.name === 'top rated'
-                      ? 'bg-yellow-1 text-dark-1'
-                      : item?.tag?.name.toLowerCase().includes('sale')
-                      ? 'bg-yellow-1 text-white'
-                      : 'bg-pink-1 text-white'
-                  }`}
-                >
-                  {item?.tag?.name}
+              <div
+                className="cardImage__leftBadge"
+                style={{ position: "absolute", top: "6px", left: "-8px" }}
+              >
+                <div className={getBadgeClasses(item.tag.name)}>
+                  {item.tag.name}
                 </div>
               </div>
             )}
@@ -146,14 +205,13 @@ const AttractionProperties = ({
 
           <div className="tourCard__content mt-10">
             <div className="d-flex items-center lh-14 mb-5">
-              <div className="text-14 text-light-1">
-                {/* {item?.duration}+ hours */}
-              </div>
               <div className="size-3 bg-light-1 rounded-full ml-10 mr-10" />
-              {/* <div className="text-14 text-light-1">{item?.tourType}</div> */}
+              {/* <span className="text-14 text-light-1">
+                {item.attractionType}
+              </span> */}
             </div>
             <h4 className="tourCard__title text-dark-1 text-18 lh-16 fw-500">
-              <span> {item?.attractionTitle}</span>
+              {item?.attractionTitle}
             </h4>
             <p className="text-light-1 lh-14 text-14 mt-5">{item?.location}</p>
 
@@ -161,10 +219,10 @@ const AttractionProperties = ({
               <div className="col-auto">
                 <div className="text-14 text-light-1">
                   From
-                  <span className="text-16 fw-500 text-dark-1">
-                    {' '}
+                  <strong className="text-16 fw-500 text-dark-1">
+                    {" "}
                     {item?.currency} {item?.price}
-                  </span>
+                  </strong>
                 </div>
               </div>
             </div>

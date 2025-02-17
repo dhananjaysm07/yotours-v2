@@ -4,8 +4,8 @@
 @use "../base/typography";
 
 @each $name, $color in variables.$colors {
-  .bg-#{""+$name} {
-    background-color: var(--color-#{""+$name}) !important;
+  .bg-#{"" + $name} {
+    background-color: var(--color-#{"" + $name}) !important;
   }
 }
 
@@ -26,8 +26,8 @@
 }
 
 @each $name, $color in variables.$colors {
-  .text-#{""+$name} {
-    color: var(--color-#{""+$name});
+  .text-#{"" + $name} {
+    color: var(--color-#{"" + $name});
   }
 }
 
@@ -1123,8 +1123,8 @@ $_displays: none, inline-block, block, flex;
     transform: translateY(-50%) translateX(-50%);
     background-color: black;
     border-radius: 100%;
-    width: rem(52px);
-    height: rem(52px);
+    width: 52px;
+    height: 52px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1134,16 +1134,16 @@ $_displays: none, inline-block, block, flex;
     .icon {
       color: white;
       stroke-width: 1;
-      width: rem(28px);
-      height: rem(28px);
+      width: 28px;
+      height: 28px;
     }
 
     &.-bottom-right {
       top: unset;
       left: unset;
       transform: unset;
-      bottom: rem(30px);
-      right: rem(30px);
+      bottom: 30px;
+      right: 30px;
     }
   }
 }
@@ -1256,7 +1256,6 @@ $_displays: none, inline-block, block, flex;
 }
 
 table.table {
-
   th {
     padding: 25px 40px;
     line-height: 1;

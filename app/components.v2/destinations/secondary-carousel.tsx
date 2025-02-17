@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { useEffect, useState } from 'react';
-import ReactDOM from 'react-dom/client';
-import { Navigation, Pagination } from 'swiper/modules';
-import isTextMatched from '@/utils/is-text-matched';
-import { TAB_OPTIONS } from './tours-and-attractions';
-import SocialShareLink from '../common/social-share-link';
+import Image from "next/image";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { useEffect, useState, useCallback } from "react";
+import { createRoot } from "react-dom/client";
+import { Navigation, Pagination } from "swiper/modules";
+import isTextMatched from "@/utils/is-text-matched";
+import { TAB_OPTIONS } from "./tours-and-attractions";
+import SocialShareLink from "../common/social-share-link";
 
 interface ImageData {
   imageUrl: string;
@@ -47,50 +47,84 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
   filter,
 }) => {
   const [clickedDataSrc, setClickedDataSrc] = useState<string | null>(null);
+  const [scriptLoaded, setScriptLoaded] = useState(false);
 
+  // Load Bokun script only once
   useEffect(() => {
-    if (bokunChannelID && clickedDataSrc) {
-      const script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelID}`;
-      script.async = true;
-      document.body.appendChild(script);
+    if (bokunChannelID && !scriptLoaded) {
+      const existingScript = document.querySelector('script[src*="bokun.io"]');
 
-      script.onload = () => {
-        setTimeout(() => {
-          const widgetContainer = document.getElementById(
-            'bokun-modal-container'
-          );
-          if (widgetContainer) {
-            const socialDiv = document.createElement('div');
-            socialDiv.className = 'socialurl';
-            widgetContainer.appendChild(socialDiv);
+      if (!existingScript) {
+        const script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelID}`;
+        script.async = true;
 
-            const socialLink = (
-              <SocialShareLink bokunWidgetUrl={clickedDataSrc} />
-            );
+        script.onload = () => {
+          setScriptLoaded(true);
+        };
 
-            if (socialLink.props.bokunWidgetUrl) {
-              ReactDOM.createRoot(socialDiv).render(socialLink);
-            } else {
-              widgetContainer.removeChild(socialDiv);
-            }
-          } else {
-            console.error('Widget container not found.');
-          }
-        }, 2000);
-      };
+        document.body.appendChild(script);
 
-      return () => {
-        document.body.removeChild(script);
-      };
+        return () => {
+          document.body.removeChild(script);
+          setScriptLoaded(false);
+        };
+      } else {
+        setScriptLoaded(true);
+      }
     }
-  }, [bokunChannelID, clickedDataSrc]);
+  }, [bokunChannelID, scriptLoaded]);
 
-  const handleBokunButtonClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    const dataSrc = event.currentTarget.getAttribute('data-src');
-    if (dataSrc) setClickedDataSrc(dataSrc);
-  };
+  // Handle widget container and social share
+  useEffect(() => {
+    if (scriptLoaded && clickedDataSrc) {
+      const initializeWidget = () => {
+        const widgetContainer = document.getElementById(
+          "bokun-modal-container"
+        );
+        if (widgetContainer) {
+          // Remove existing social div if present
+          const existingSocialDiv = widgetContainer.querySelector(".socialurl");
+          if (existingSocialDiv) {
+            widgetContainer.removeChild(existingSocialDiv);
+          }
+
+          // Create new social div
+          const socialDiv = document.createElement("div");
+          socialDiv.className = "socialurl";
+          widgetContainer.appendChild(socialDiv);
+
+          const socialLink = (
+            <SocialShareLink bokunWidgetUrl={clickedDataSrc} />
+          );
+
+          if (socialLink.props.bokunWidgetUrl) {
+            createRoot(socialDiv).render(socialLink);
+          }
+        }
+      };
+
+      // Give the widget time to mount
+      const timer = setTimeout(initializeWidget, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [clickedDataSrc, scriptLoaded]);
+
+  const handleBokunButtonClick = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      const dataSrc = event.currentTarget.getAttribute("data-src");
+      if (dataSrc) {
+        setClickedDataSrc(dataSrc);
+
+        // Reset any existing Bokun widgets
+        if (window.BokunWidgetLoader) {
+          window.BokunWidgetLoader.reset();
+        }
+      }
+    },
+    []
+  );
 
   const isTour = filter === TAB_OPTIONS.TOUR;
 
@@ -117,7 +151,7 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
           <SwiperSlide key={item.id}>
             <div className="col-12" data-aos="fade" data-aos-delay="100">
               <div
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: "pointer" }}
                 className="bokunButton hotelsCard -type-1 hover-inside-slider"
                 data-src={`https://widgets.bokun.io/online-sales/${bokunChannelID}/experience/${
                   isTour ? item.tourBokunId : item.attractionBokunId
@@ -136,7 +170,7 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
                             className="rounded-4 col-12"
                             src={slide.imageUrl}
                             alt="image"
-                            style={{ objectFit: 'cover' }}
+                            style={{ objectFit: "cover" }}
                           />
                         </div>
                       </div>
@@ -151,22 +185,22 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
                     <div className="cardImage__leftBadge">
                       <div
                         className={`py-5 px-15 rounded-right-4 text-12 lh-16 fw-500 uppercase ${
-                          isTextMatched(item?.tag?.name, 'trending')
-                            ? 'bg-dark-1 text-white'
-                            : ''
+                          isTextMatched(item?.tag?.name, "trending")
+                            ? "bg-dark-1 text-white"
+                            : ""
                         } ${
-                          isTextMatched(item?.tag?.name, 'best seller')
-                            ? 'bg-blue-1 text-white'
-                            : ''
+                          isTextMatched(item?.tag?.name, "best seller")
+                            ? "bg-blue-1 text-white"
+                            : ""
                         } ${
-                          isTextMatched(item?.tag?.name, 'Most Popular Tours')
-                            ? 'bg-blue-1 text-white'
-                            : ''
+                          isTextMatched(item?.tag?.name, "Most Popular Tours")
+                            ? "bg-blue-1 text-white"
+                            : ""
                         } ${
-                          item?.tag?.name?.toLowerCase().includes('sale')
-                            ? 'bg-yellow-1 text-white'
-                            : ''
-                        } ${item.tag ? 'bg-pink-1 text-white' : ''}`}
+                          item?.tag?.name?.toLowerCase().includes("sale")
+                            ? "bg-yellow-1 text-white"
+                            : ""
+                        } ${item.tag ? "bg-pink-1 text-white" : ""}`}
                       >
                         {item?.tag?.name}
                       </div>
@@ -180,11 +214,11 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
                     </span>
                   </h4>
                   <p className="text-light-1 lh-14 text-14 mt-5">
-                    {item?.location + ', ' + item?.destination.country}
+                    {item?.location + ", " + item?.destination.country}
                   </p>
                   <div className="mt-5">
                     <div className="fw-500">
-                      Starting from{' '}
+                      Starting from{" "}
                       <span className="text-blue-1">
                         {item?.currency} {item?.price}
                       </span>
