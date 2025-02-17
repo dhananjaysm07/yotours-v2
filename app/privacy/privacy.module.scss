@@ -1,0 +1,39 @@
+.container {
+  max-width: 800px;
+  margin: 50px auto;
+  background-color: #fff;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  color: red !important ;
+  h1 {
+    color: #333;
+  }
+}
+
+.content {
+  margin-top: 20px;
+  line-height: 1.5rem;
+
+  p {
+    color: #666;
+  }
+  p,
+  ul {
+    margin: 0 !important;
+    padding: 0 !important;
+    padding-left: 0.2rem !important;
+    li {
+      // list-style: disc;
+    }
+  }
+  ol {
+    margin: 0 !important;
+    padding: 0 !important;
+    padding-left: 0.2rem !important;
+    li {
+      // list-style-type: decimal !important;
+      // list-style: decimal;
+      list-style: disc;
+    }
+  }
+}

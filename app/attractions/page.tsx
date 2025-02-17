@@ -9,8 +9,6 @@ import {
 import Pagination from '../components.v2/common/pagination';
 import InvertedHeader from '../components.v2/inverted-header';
 import Footer from '../components.v2/footer';
-// import Sidebar from '../components.v2/attractions/sidebar';
-// import AttractionProperties from '../components.v2/attractions/attraction-properties';
 import TopHeaderFilter from '../components.v2/common/top-header-filter';
 import { unstable_cache } from 'next/cache';
 import { constants } from '@/constants';
@@ -24,6 +22,7 @@ import {
   getContentData,
   getUniqueDestinations,
 } from '@/lib/apollo/common-api-funcs';
+import AttractionProperties from '../components.v2/attractions/attraction-properties';
 
 export const metadata: Metadata = {
   title: 'Attractions | Yo Tours',
@@ -164,12 +163,12 @@ export default async function AttractionsPage({
               />
               <div className="mt-30"></div>
               <div className="row y-gap-30">
-                {/* <AttractionProperties
+                <AttractionProperties
                   attractions={attractions}
                   bokunChannelId={contentData.data.getContent.bokunChannelId}
                   currentPage={currentPage}
                   dataPerPage={dataPerPage}
-                /> */}
+                />
               </div>
               <Pagination
                 totalPage={Math.ceil(totalCount / dataPerPage)}
