@@ -2,10 +2,9 @@
 
 import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { useEffect, useState } from 'react';
-import ReactDOM from 'react-dom/client';
+import { useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
 import { Navigation, Pagination } from 'swiper/modules';
-import isTextMatched from '@/utils/is-text-matched';
 import { TAB_OPTIONS } from './tours-and-attractions';
 import SocialShareLink from '../common/social-share-link';
 
@@ -46,53 +45,52 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
   bokunChannelID,
   filter,
 }) => {
-  const [clickedDataSrc, setClickedDataSrc] = useState<string | null>(null);
-
   useEffect(() => {
-    if (bokunChannelID) {
-      const script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelID}`;
-      script.async = true;
-      document.body.appendChild(script);
-
-      script.onload = () => {
-        setTimeout(() => {
-          const widgetContainer = document.getElementById(
-            'bokun-modal-container'
-          );
-          if (widgetContainer) {
-            const socialDiv = document.createElement('div');
-            socialDiv.className = 'socialurl';
-            widgetContainer.appendChild(socialDiv);
-
-            const socialLink = (
-              <SocialShareLink bokunWidgetUrl={clickedDataSrc!} />
-            );
-
-            if (socialLink.props.bokunWidgetUrl) {
-              ReactDOM.createRoot(socialDiv).render(socialLink);
-            } else {
-              widgetContainer.removeChild(socialDiv);
-            }
-          } else {
-            console.error('Widget container not found.');
-          }
-        }, 2000);
-      };
-
-      return () => {
-        document.body.removeChild(script);
-      };
+    if (!bokunChannelID) {
+      console.error('Bokun Channel ID is not available.');
+      return;
     }
-  }, [bokunChannelID, clickedDataSrc]);
 
-  const handleBokunButtonClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    const dataSrc = event.currentTarget.getAttribute('data-src');
-    if (dataSrc) setClickedDataSrc(dataSrc);
-  };
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelID}`;
+    script.async = true;
+    document.body.appendChild(script);
+
+    script.onload = () => {
+      setTimeout(() => {
+        const widgetContainer = document.getElementById(
+          'bokun-modal-container'
+        );
+        if (!widgetContainer) {
+          console.error('Widget container not found.');
+          return;
+        }
+
+        const socialDiv = document.createElement('div');
+        socialDiv.className = 'socialurl';
+        widgetContainer.appendChild(socialDiv);
+        createRoot(socialDiv).render(<SocialShareLink bokunWidgetUrl="" />);
+      }, 2000);
+    };
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, [bokunChannelID]);
 
   const isTour = filter === TAB_OPTIONS.TOUR;
+
+  const getTagClassName = (tagName: string | undefined): string => {
+    if (!tagName) return '';
+
+    const lowerTagName = tagName.toLowerCase();
+    if (lowerTagName === 'trending') return 'bg-dark-1 text-white';
+    if (lowerTagName === 'best seller' || lowerTagName === 'most popular tours')
+      return 'bg-blue-1 text-white';
+    if (lowerTagName.includes('sale')) return 'bg-yellow-1 text-white';
+    return 'bg-pink-1 text-white';
+  };
 
   return (
     <>
@@ -121,12 +119,11 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
           <SwiperSlide key={item.id}>
             <div className="col-12" data-aos="fade" data-aos-delay="100">
               <div
-                style={{ cursor: 'pointer' }}
                 className="bokunButton hotelsCard -type-1 hover-inside-slider"
+                style={{ cursor: 'pointer' }}
                 data-src={`https://widgets.bokun.io/online-sales/${bokunChannelID}/experience/${
                   isTour ? item.tourBokunId : item.attractionBokunId
                 }?partialView=1`}
-                onClick={handleBokunButtonClick}
               >
                 <div className="hotelsCard__image">
                   <div className="cardImage inside-slider">
@@ -152,29 +149,17 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
                       </button>
                     </div>
 
-                    <div className="cardImage__leftBadge">
-                      <div
-                        className={`py-5 px-15 rounded-right-4 text-12 lh-16 fw-500 uppercase ${
-                          isTextMatched(item?.tag?.name, 'trending')
-                            ? 'bg-dark-1 text-white'
-                            : ''
-                        } ${
-                          isTextMatched(item?.tag?.name, 'best seller')
-                            ? 'bg-blue-1 text-white'
-                            : ''
-                        } ${
-                          isTextMatched(item?.tag?.name, 'Most Popular Tours')
-                            ? 'bg-blue-1 text-white'
-                            : ''
-                        } ${
-                          item?.tag?.name?.toLowerCase().includes('sale')
-                            ? 'bg-yellow-1 text-white'
-                            : ''
-                        } ${item.tag ? 'bg-pink-1 text-white' : ''}`}
-                      >
-                        {item?.tag?.name}
+                    {item.tag && (
+                      <div className="cardImage__leftBadge">
+                        <div
+                          className={`py-5 px-15 rounded-right-4 text-12 lh-16 fw-500 uppercase ${getTagClassName(
+                            item.tag.name
+                          )}`}
+                        >
+                          {item.tag.name}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
                 <div className="hotelsCard__content mt-10">
