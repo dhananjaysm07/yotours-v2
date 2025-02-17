@@ -7,6 +7,7 @@ import { getApolloClient } from '@/lib/apollo/apollo-client-ssr';
 import Activity from '@/app/components/common/activity';
 import { GetDestinationByCityResponse } from '@/types';
 import { GET_ATTRACTION_CARS_FOR_DESTINATION } from '@/graphql/single-queries';
+import FadeUpAnimation from '@/app/components/common/fade-up';
 
 export const metadata: Metadata = getPageMeta(
   'Attractions Search',
@@ -46,33 +47,36 @@ const SearchedAttractions = async ({
     <>
       <div className="header-margin" />
       <InvertedHeader />
-      <section className="layout-pt-md layout-pb-md" data-aos="fade-up">
-        <div className="container">
-          <div className="row y-gap-20 justify-between items-end">
-            <div className="col-auto">
-              <div className="sectionTitle -md">
-                <h2 className="sectionTitle__title">Best Matches</h2>
-                <p className="sectionTitle__text mt-5 sm:mt-0">
-                  These popular Attractions have a lot to offer
-                </p>
+      <FadeUpAnimation delay={0}>
+        <section className="layout-pt-md layout-pb-md">
+          <div className="container">
+            <div className="row y-gap-20 justify-between items-end">
+              <div className="col-auto">
+                <div className="sectionTitle -md">
+                  <h2 className="sectionTitle__title">Best Matches</h2>
+                  <p className="sectionTitle__text mt-5 sm:mt-0">
+                    These popular Attractions have a lot to offer
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
 
-          {tours?.getDestinationByCity?.attractions.length > 0 ? (
-            <div className="relative pt-40 sm:pt-20">
-              <Activity
-                attractions={tours.getDestinationByCity.attractions}
-                contentData={contentData.data.getContent}
-              />
-            </div>
-          ) : (
-            <div className="relative pt-40 text-black sm:pt-20">
-              <h1>No Attractions Found </h1>
-            </div>
-          )}
-        </div>
-      </section>
+            {tours?.getDestinationByCity?.attractions.length > 0 ? (
+              <div className="relative pt-40 sm:pt-20">
+                <Activity
+                  attractions={tours.getDestinationByCity.attractions}
+                  contentData={contentData.data.getContent}
+                />
+              </div>
+            ) : (
+              <div className="relative pt-40 text-black sm:pt-20">
+                <h1>No Attractions Found </h1>
+              </div>
+            )}
+          </div>
+        </section>
+      </FadeUpAnimation>
+
       <Footer />
     </>
   );

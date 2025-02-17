@@ -6,7 +6,7 @@ import { createRoot } from 'react-dom/client';
 import { JSX, useEffect } from 'react';
 import { Attraction, ContentData } from '@/types';
 import SocialShareLink from './social-share-link';
-
+import { motion } from 'framer-motion';
 interface ActivityProps {
   contentData: ContentData;
   attractions: Attraction[];
@@ -96,11 +96,12 @@ const Activity = ({ contentData, attractions }: ActivityProps): JSX.Element => {
     <div className="relative overflow-hidden pt-40 sm:pt-20">
       <div className="row y-gap-30">
         {activeAttractions.map((item) => (
-          <div
+          <motion.div
             className="col-xl-3 col-lg-3 col-sm-6"
             key={item.id}
-            data-aos="fade"
-            data-aos-delay="100"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.6, ease: 'easeOut' }}
           >
             <div
               className="bokunButton tourCard -type-1 rounded-4 hover-inside-slider"
@@ -166,7 +167,7 @@ const Activity = ({ contentData, attractions }: ActivityProps): JSX.Element => {
                 )}
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>
