@@ -6,7 +6,7 @@ import { Navigation, Pagination } from 'swiper/modules';
 import { useEffect, useState, useRef } from 'react';
 import { Attraction } from '@/types';
 import SocialShareLink from '../common/social-share-link';
-import { createRoot } from 'react-dom/client';
+import { createRoot, Root } from 'react-dom/client';
 
 interface AttractionPropertiesProps {
   attractions: Attraction[];
@@ -21,7 +21,7 @@ const AttractionProperties = ({
 }: AttractionPropertiesProps) => {
   const [clickedDataSrc, setClickedDataSrc] = useState<string | null>(null);
   const scriptLoaded = useRef(false);
-  const socialRootRef = useRef<any>(null);
+  const socialRootRef = useRef<Root | null>(null);
 
   useEffect(() => {
     if (!bokunChannelId || scriptLoaded.current) return;
