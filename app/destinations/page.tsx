@@ -4,19 +4,15 @@ import InvertedHeader from '../components/inverted-header';
 import Pagination from '../components/common/pagination';
 import Footer from '../components/footer';
 import DestinationGrid from '../components/destination-list/destination-grid';
-import {
-  GET_FILTERED_DESTINATION,
-  GET_COUNTRIES_CONTINENTS_QUERY,
-  GET_DESTINATION_LOCATIONS,
-} from '@/graphql/query';
+import { GET_FILTERED_DESTINATION } from '@/graphql/query';
 import { getApolloClient } from '@/lib/apollo/apollo-client-ssr';
 import DestinationSidebar from '../components/destination-list/destination-sidebar';
 import TopHeaderFilter from '../components/common/top-header-filter';
+import { GetFilteredDestinationResponse } from '@/types';
 import {
-  CountriesContinentsData,
-  GetFilteredDestinationResponse,
-  UniqueDestinations,
-} from '@/types';
+  getCountriesAndContinents,
+  getUniqueDestinations,
+} from '@/lib/apollo/common-api-funcs';
 
 export const metadata: Metadata = {
   title: 'Destinations | Yo Tours',
@@ -42,33 +38,6 @@ const getFilteredDestinations = async (
   } catch (error) {
     console.error('Error fetching filtered destinations:', error);
     return { getFilteredDestination: { destinations: [], totalCount: 0 } };
-  }
-};
-
-const getCountriesAndContinents =
-  async (): Promise<CountriesContinentsData> => {
-    const client = getApolloClient();
-    try {
-      const { data } = await client.query<CountriesContinentsData>({
-        query: GET_COUNTRIES_CONTINENTS_QUERY,
-      });
-      return data;
-    } catch (error) {
-      console.error('Error fetching countries and continents:', error);
-      return { getCountriesAndContinents: [] };
-    }
-  };
-
-const getUniqueDestinations = async (): Promise<UniqueDestinations> => {
-  const client = getApolloClient();
-  try {
-    const { data } = await client.query<UniqueDestinations>({
-      query: GET_DESTINATION_LOCATIONS,
-    });
-    return data;
-  } catch (error) {
-    console.error('Error fetching unique destinations:', error);
-    return { getUniqueDestinationLocations: [] };
   }
 };
 

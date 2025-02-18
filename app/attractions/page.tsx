@@ -1,23 +1,15 @@
 import { Metadata } from 'next';
 import { getApolloClient } from '@/lib/apollo/apollo-client-ssr';
-import {
-  GET_FILTERED_ATTRACTIONs,
-  GET_COUNTRIES_CONTINENTS_ATTRACTIONS_QUERY,
-  GET_ALL_TAGS,
-} from '@/graphql/query';
+import { GET_FILTERED_ATTRACTIONs } from '@/graphql/query';
 import Pagination from '../components/common/pagination';
 import InvertedHeader from '../components/inverted-header';
 import Footer from '../components/footer';
 import TopHeaderFilter from '../components/common/top-header-filter';
-import { unstable_cache } from 'next/cache';
-import { constants } from '@/constants';
 import Sidebar from '../components/attractions/attraction-sidebar';
+import { GetFilteredAttractionsResponse } from '@/types';
 import {
-  AttractionCountriesContinentsData,
-  GetFilteredAttractionsResponse,
-  TagData,
-} from '@/types';
-import {
+  getAllTags,
+  getAttractionsCountriesAndContinents,
   getContentData,
   getUniqueDestinations,
 } from '@/lib/apollo/common-api-funcs';
@@ -49,40 +41,6 @@ const getFilteredAttractions = async (
     return { getFilteredAttractions: { attractions: [], totalCount: 0 } };
   }
 };
-
-const getCountriesAndContinents = unstable_cache(
-  async (): Promise<AttractionCountriesContinentsData> => {
-    const client = getApolloClient();
-    try {
-      const { data } = await client.query<AttractionCountriesContinentsData>({
-        query: GET_COUNTRIES_CONTINENTS_ATTRACTIONS_QUERY,
-      });
-      return data;
-    } catch (error) {
-      console.error('Error fetching countries and continents:', error);
-      return { getCountriesAndContinentsForAttractions: [] };
-    }
-  },
-  ['GET_COUNTRIES_CONTINENTS_ATTRACTIONS_QUERY'],
-  { revalidate: constants.revalidationSeconds }
-);
-
-const getAllTags = unstable_cache(
-  async (): Promise<TagData> => {
-    const client = getApolloClient();
-    try {
-      const { data } = await client.query<TagData>({
-        query: GET_ALL_TAGS,
-      });
-      return data;
-    } catch (error) {
-      console.error('Error fetching tags:', error);
-      return { getAllTags: [] };
-    }
-  },
-  ['GET_ALL_TAGS'],
-  { revalidate: constants.revalidationSeconds }
-);
 
 interface SearchParams {
   continent?: string;
@@ -125,7 +83,7 @@ export default async function AttractionsPage({
     uniqueDestinationLocations,
   ] = await Promise.all([
     getFilteredAttractions(filter, currentPage, loadCount),
-    getCountriesAndContinents(),
+    getAttractionsCountriesAndContinents(),
     getAllTags(),
     getContentData(),
     getUniqueDestinations(),

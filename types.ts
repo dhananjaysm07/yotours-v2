@@ -157,3 +157,19 @@ export interface DestinationByCity {
 export interface GetDestinationByCityResponse {
   getDestinationByCity: DestinationByCity;
 }
+
+export interface CountriesContinentsData {
+  getCountriesAndContinents: {
+    country: string;
+    continent: string;
+    destinationCount: number;
+  }[];
+}
+
+export interface UniqueTourLocations {
+  getUniqueTourLocations: string[];
+}
+
+export interface AllTags {
+  getAllTags: { name: string }[];
+}

@@ -1,18 +1,18 @@
 import { Metadata } from 'next';
 import { getApolloClient } from '@/lib/apollo/apollo-client-ssr';
-import {
-  GET_FILTERED_TOURS,
-  GET_COUNTRIES_CONTINENTS_QUERY,
-  GET_TOUR_LOCATIONS,
-  GET_ALL_TAGS,
-} from '@/graphql/query';
+import { GET_FILTERED_TOURS } from '@/graphql/query';
 import Pagination from '../components/common/pagination';
 import InvertedHeader from '../components/inverted-header';
 import Footer from '../components/footer';
 import Sidebar from '../components/tours/tours-sidebar';
 import TourProperties from '../components/tours/tour-properties';
 import TopHeaderFilter from '../components/common/top-header-filter';
-import { getContentData } from '@/lib/apollo/common-api-funcs';
+import {
+  getAllTags,
+  getContentData,
+  getCountriesAndContinents,
+  getUniqueTourLocations,
+} from '@/lib/apollo/common-api-funcs';
 
 export const metadata: Metadata = {
   title: 'Tours | Yo Tours',
@@ -39,22 +39,6 @@ interface GetFilteredToursResponse {
   };
 }
 
-interface CountriesContinentsData {
-  getCountriesAndContinents: {
-    country: string;
-    continent: string;
-    destinationCount: number;
-  }[];
-}
-
-interface UniqueTourLocations {
-  getUniqueTourLocations: string[];
-}
-
-interface AllTags {
-  getAllTags: { name: string }[];
-}
-
 const getFilteredTours = async (
   filter: Record<string, unknown>,
   page: number,
@@ -74,46 +58,6 @@ const getFilteredTours = async (
   } catch (error) {
     console.error('Error fetching filtered tours:', error);
     return { getFilteredTours: { tours: [], totalCount: 0 } };
-  }
-};
-
-const getCountriesAndContinents =
-  async (): Promise<CountriesContinentsData> => {
-    const client = getApolloClient();
-    try {
-      const { data } = await client.query<CountriesContinentsData>({
-        query: GET_COUNTRIES_CONTINENTS_QUERY,
-      });
-      return data;
-    } catch (error) {
-      console.error('Error fetching countries and continents:', error);
-      return { getCountriesAndContinents: [] };
-    }
-  };
-
-const getUniqueTourLocations = async (): Promise<UniqueTourLocations> => {
-  const client = getApolloClient();
-  try {
-    const { data } = await client.query<UniqueTourLocations>({
-      query: GET_TOUR_LOCATIONS,
-    });
-    return data;
-  } catch (error) {
-    console.error('Error fetching unique tour locations:', error);
-    return { getUniqueTourLocations: [] };
-  }
-};
-
-const getAllTags = async (): Promise<AllTags> => {
-  const client = getApolloClient();
-  try {
-    const { data } = await client.query<AllTags>({
-      query: GET_ALL_TAGS,
-    });
-    return data;
-  } catch (error) {
-    console.error('Error fetching unique tour locations:', error);
-    return { getAllTags: [] };
   }
 };
 
