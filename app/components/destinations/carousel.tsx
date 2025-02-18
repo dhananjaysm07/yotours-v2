@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Scrollbar } from 'swiper/modules';
-import { createSlug } from '@/utils/slugify';
-import { Destination } from '@/types';
+import Image from "next/image";
+import Link from "next/link";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Scrollbar } from "swiper/modules";
+import { createSlug } from "@/utils/slugify";
+import { Destination } from "@/types";
 
 interface DestinationCarouselProps {
   popularDestinations: Destination[];
@@ -60,24 +60,25 @@ const DestinationCarousel: React.FC<DestinationCarouselProps> = ({
               }}
               className="citiesCard -type-1 d-block rounded-4"
             >
-              <div className="citiesCard__image ratio ratio-3:4 test34">
+              <div className="citiesCard__image ratio ratio-3:4">
                 <Image
-                  width={200}
+                  width={800} // Increased from 200
+                  height={1000} // Increased from 200
                   quality={100}
-                  height={200}
                   src={item.bannerImage}
                   alt={item.destinationName}
-                  style={{ objectFit: 'cover' }}
+                  style={{ objectFit: "cover" }}
+                  className="rounded-4" // Added for consistency with card design
                 />
               </div>
               <div className="citiesCard__content d-flex flex-column justify-between text-center pt-30 pb-20 px-20">
                 <div className="citiesCard__bg" />
                 <div className="citiesCard__top">
                   <div className="text-14 text-white">
-                    {item.tours?.filter((el) => el.active).length || 0}{' '}
-                    {' Tours'}{' '}
-                    {item.attractions?.filter((el) => el.active).length || 0}{' '}
-                    {' Attractions'}
+                    {item.tours?.filter((el) => el.active).length || 0}{" "}
+                    {" Tours"}{" "}
+                    {item.attractions?.filter((el) => el.active).length || 0}{" "}
+                    {" Attractions"}
                   </div>
                 </div>
                 <div className="citiesCard__bottom">

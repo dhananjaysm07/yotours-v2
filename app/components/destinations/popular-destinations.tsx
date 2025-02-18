@@ -1,6 +1,7 @@
-import Link from 'next/link';
-import DestinationCarousel from './carousel';
-import { Destination } from '@/types';
+import Link from "next/link";
+import DestinationCarousel from "./carousel";
+import { Destination } from "@/types";
+import { nanoid } from "nanoid";
 
 type PopularDestinationsProps = {
   destinationData: Destination[];
@@ -14,6 +15,7 @@ const PopularDestinations = ({
   destinationName,
 }: // isCountry
 PopularDestinationsProps) => {
+  const uniqueId = nanoid();
   return (
     <>
       <section className="layout-pt-lg layout-pb-md" data-aos="fade-up">
@@ -44,7 +46,7 @@ PopularDestinationsProps) => {
             {destinationData ? (
               <DestinationCarousel
                 popularDestinations={destinationData}
-                id={100140929}
+                id={uniqueId}
               />
             ) : (
               `No Destinations in ${destinationName}`

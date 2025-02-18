@@ -62,6 +62,7 @@ const HomePage = async () => {
       <Hero contentData={getContent} destinations={{ getDestinations: [] }} />
       <main>
         <Destination
+          key={"Europe"}
           filter={{
             activeValues: [true],
             continent: ["Europe"],
@@ -83,6 +84,7 @@ const HomePage = async () => {
           </div>
         </section>
         <Destination
+          key={"India"}
           filter={{
             activeValues: [true],
             continent: ["Asia"],
@@ -91,6 +93,7 @@ const HomePage = async () => {
           bokunChannelID={bokunChannelID}
         />
         <Destination
+          key={"Asia"}
           filter={{
             activeValues: [true],
             continent: ["Asia"],
