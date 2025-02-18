@@ -25,7 +25,6 @@ const getToursByDestination = async (
         destinationName: destinationName,
       },
     });
-    console.log(data);
     return data;
   } catch (error) {
     console.error('Error fetching filtered attractions:', error);
@@ -36,11 +35,12 @@ const getToursByDestination = async (
 const SearchedAttractions = async ({
   searchParams,
 }: {
-  searchParams: { destinationName: string };
+  searchParams: Promise<{ destinationName: string }>;
 }) => {
+  const params = await searchParams;
   const [contentData, tours] = await Promise.all([
     getContentData(),
-    getToursByDestination(searchParams.destinationName),
+    getToursByDestination(params.destinationName),
   ]);
 
   return (

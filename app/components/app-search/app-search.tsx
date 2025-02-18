@@ -27,7 +27,6 @@ const AppSearch = ({ destinations }: { destinations: GetDestinations }) => {
     startDate: defaultStartDate,
     endDate: defaultEndDate,
   });
-  console.log(defaultStartDate, defaultEndDate);
   const handleSearch = () => {
     const destinationQuery = selectedDestination
       ? `?destinationName=${encodeURIComponent(

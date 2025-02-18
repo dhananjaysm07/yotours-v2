@@ -1,34 +1,35 @@
-import { getApolloClient } from "@/lib/apollo/apollo-client-ssr";
+import { getApolloClient } from '@/lib/apollo/apollo-client-ssr';
 import {
   GET_DESTINATION,
   GET_TOUR_FOR_DESTINATION,
   GET_THINGS_FOR_DESTINATION,
   GET_ATTRACTION_CARS_FOR_DESTINATION,
-} from "@/graphql/single-queries";
-import LocationTopBar from "@/app/components/destination-details/location-top-bar";
-import LoadingDestinationBanner from "@/app/components/destination-details/loading";
-import Banner from "@/app/components/destination-details/banner";
-import GeneralInfo from "@/app/components/destination-details/general-info";
-import Things from "@/app/components/destination-details/things";
-import Tours from "@/app/components/destination-details/tours";
-import ActivityCar from "@/app/components/destination-details/activity-car";
-import IntroTown from "@/app/components/destination-details/intro-town";
-import Footer from "@/app/components/footer";
-import InvertedHeader from "@/app/components/inverted-header";
-import Categories from "@/app/components/destination-details/categories";
-import { SectionTitle } from "@/app/components/destination-details/section-title";
-import { ExpandableSection } from "@/app/components/destination-details/expandable-section";
-import { GET_CONTENT_QUERY } from "@/graphql/query";
+} from '@/graphql/single-queries';
+import LocationTopBar from '@/app/components/destination-details/location-top-bar';
+import LoadingDestinationBanner from '@/app/components/destination-details/loading';
+import Banner from '@/app/components/destination-details/banner';
+import GeneralInfo from '@/app/components/destination-details/general-info';
+import Things from '@/app/components/destination-details/things';
+import Tours from '@/app/components/destination-details/tours';
+import ActivityCar from '@/app/components/destination-details/activity-car';
+import IntroTown from '@/app/components/destination-details/intro-town';
+import Footer from '@/app/components/footer';
+import InvertedHeader from '@/app/components/inverted-header';
+import Categories from '@/app/components/destination-details/categories';
+import { SectionTitle } from '@/app/components/destination-details/section-title';
+import { ExpandableSection } from '@/app/components/destination-details/expandable-section';
+import { GET_CONTENT_QUERY } from '@/graphql/query';
 
 export const metadata = {
-  title: "Destinations | Yo Tours",
-  description: "Explore destinations with Yo Tours.",
+  title: 'Destinations | Yo Tours',
+  description: 'Explore destinations with Yo Tours.',
 };
 
-interface PageProps {
-  params: { destinationSlug: string };
-  searchParams: { city: string };
-}
+type PageProps = {
+  searchParams: Promise<{
+    city: string;
+  }>;
+};
 
 async function getDestinationData(city: string) {
   const client = getApolloClient();
@@ -72,10 +73,9 @@ async function getDestinationData(city: string) {
 }
 
 export default async function DestinationPage({ searchParams }: PageProps) {
+  const params = await searchParams;
   const { destination, tour, thing, attractionCar, contentData } =
-    await getDestinationData(searchParams.city);
-
-  // const allTours = tour?.tours?.filter((el) => el.active) || [];
+    await getDestinationData(params.city);
 
   return (
     <>
@@ -119,7 +119,7 @@ export default async function DestinationPage({ searchParams }: PageProps) {
               <ExpandableSection title="Best Things">
                 <div className="row y-gap-30 pt-0 sm:pt-20 item_gap-x30">
                   <p className="sectionTitle__text mt-5 sm:mt-0">
-                    These are the best things available for{" "}
+                    These are the best things available for{' '}
                     {destination.destinationName}
                   </p>
                   {thing?.things ? (
@@ -170,7 +170,7 @@ export default async function DestinationPage({ searchParams }: PageProps) {
                     <ActivityCar
                       attractions={attractionCar.attractions}
                       contentData={contentData}
-                      type={"Attractions"}
+                      type={'Attractions'}
                     />
                   </div>
                 </>
@@ -188,7 +188,7 @@ export default async function DestinationPage({ searchParams }: PageProps) {
                   <div className="row y-gap-30 pt-10 sm:pt-20 item_gap-x30">
                     <ActivityCar
                       attractions={attractionCar.cars}
-                      type={"Cars"}
+                      type={'Cars'}
                       contentData={contentData}
                     />
                   </div>

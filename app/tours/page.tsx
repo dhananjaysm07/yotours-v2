@@ -1,22 +1,22 @@
-import { Metadata } from "next";
-import { getApolloClient } from "@/lib/apollo/apollo-client-ssr";
+import { Metadata } from 'next';
+import { getApolloClient } from '@/lib/apollo/apollo-client-ssr';
 import {
   GET_FILTERED_TOURS,
   GET_COUNTRIES_CONTINENTS_QUERY,
   GET_TOUR_LOCATIONS,
   GET_ALL_TAGS,
-} from "@/graphql/query";
-import Pagination from "../components/common/pagination";
-import InvertedHeader from "../components/inverted-header";
-import Footer from "../components/footer";
-import Sidebar from "../components/tours/tours-sidebar";
-import TourProperties from "../components/tours/tour-properties";
-import TopHeaderFilter from "../components/common/top-header-filter";
-import { getContentData } from "@/lib/apollo/common-api-funcs";
+} from '@/graphql/query';
+import Pagination from '../components/common/pagination';
+import InvertedHeader from '../components/inverted-header';
+import Footer from '../components/footer';
+import Sidebar from '../components/tours/tours-sidebar';
+import TourProperties from '../components/tours/tour-properties';
+import TopHeaderFilter from '../components/common/top-header-filter';
+import { getContentData } from '@/lib/apollo/common-api-funcs';
 
 export const metadata: Metadata = {
-  title: "Tours | Yo Tours",
-  description: "Explore tours with Yo Tours.",
+  title: 'Tours | Yo Tours',
+  description: 'Explore tours with Yo Tours.',
 };
 
 interface Tour {
@@ -72,7 +72,7 @@ const getFilteredTours = async (
     });
     return data;
   } catch (error) {
-    console.error("Error fetching filtered tours:", error);
+    console.error('Error fetching filtered tours:', error);
     return { getFilteredTours: { tours: [], totalCount: 0 } };
   }
 };
@@ -86,7 +86,7 @@ const getCountriesAndContinents =
       });
       return data;
     } catch (error) {
-      console.error("Error fetching countries and continents:", error);
+      console.error('Error fetching countries and continents:', error);
       return { getCountriesAndContinents: [] };
     }
   };
@@ -99,7 +99,7 @@ const getUniqueTourLocations = async (): Promise<UniqueTourLocations> => {
     });
     return data;
   } catch (error) {
-    console.error("Error fetching unique tour locations:", error);
+    console.error('Error fetching unique tour locations:', error);
     return { getUniqueTourLocations: [] };
   }
 };
@@ -112,13 +112,13 @@ const getAllTags = async (): Promise<AllTags> => {
     });
     return data;
   } catch (error) {
-    console.error("Error fetching unique tour locations:", error);
+    console.error('Error fetching unique tour locations:', error);
     return { getAllTags: [] };
   }
 };
 
 interface ToursPageProps {
-  searchParams: {
+  searchParams: Promise<{
     continent?: string;
     country?: string;
     priceMin?: string;
@@ -126,24 +126,22 @@ interface ToursPageProps {
     location?: string;
     tagName?: string;
     page?: string;
-  };
+  }>;
 }
 
 const ToursPage = async ({ searchParams }: ToursPageProps) => {
-  const currentPage = Math.max(
-    1,
-    searchParams.page ? parseInt(searchParams.page) : 1
-  );
+  const params = await searchParams;
+  const currentPage = Math.max(1, params.page ? parseInt(params.page) : 1);
   const dataPerPage = 9;
   const loadCount = 9;
 
   const filter = {
-    priceMin: searchParams.priceMin ? parseInt(searchParams.priceMin) : null,
-    priceMax: searchParams.priceMax ? parseInt(searchParams.priceMax) : null,
-    location: searchParams.location || null,
-    continent: searchParams.continent ? searchParams.continent.split(",") : [],
-    country: searchParams.country ? searchParams.country.split(",") : [],
-    tagName: searchParams.tagName ? searchParams.tagName.split(",") : [],
+    priceMin: params.priceMin ? parseInt(params.priceMin) : null,
+    priceMax: params.priceMax ? parseInt(params.priceMax) : null,
+    location: params.location || null,
+    continent: params.continent ? params.continent.split(',') : [],
+    country: params.country ? params.country.split(',') : [],
+    tagName: params.tagName ? params.tagName.split(',') : [],
   };
 
   const [

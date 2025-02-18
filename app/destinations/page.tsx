@@ -72,35 +72,35 @@ const getUniqueDestinations = async (): Promise<UniqueDestinations> => {
   }
 };
 
+interface DestinationSearchParams {
+  continent?: string;
+  country?: string;
+  priceMin?: string;
+  priceMax?: string;
+  location?: string;
+  tagName?: string;
+  page?: string;
+}
+
 interface DestinationPageProps {
-  searchParams: {
-    continent?: string;
-    country?: string;
-    priceMin?: string;
-    priceMax?: string;
-    location?: string;
-    tagName?: string;
-    page?: string;
-  };
+  searchParams: Promise<DestinationSearchParams>;
 }
 
 const DestinationPage = async ({ searchParams }: DestinationPageProps) => {
+  const params = await searchParams;
   // Ensure page is at least 1
-  const currentPage = Math.max(
-    1,
-    searchParams.page ? parseInt(searchParams.page) : 1
-  );
+  const currentPage = Math.max(1, params.page ? parseInt(params.page) : 1);
   const dataPerPage = 9; // Number of items per page
   const loadCount = 9; // Fixed loadCount
 
   // Parse searchParams into a filter object
   const filter = {
-    priceMin: searchParams.priceMin ? parseInt(searchParams.priceMin) : null,
-    priceMax: searchParams.priceMax ? parseInt(searchParams.priceMax) : null,
-    location: searchParams.location || null,
-    continent: searchParams.continent ? searchParams.continent.split(',') : [],
-    country: searchParams.country ? searchParams.country.split(',') : [],
-    tagName: searchParams.tagName ? searchParams.tagName.split(',') : [],
+    priceMin: params.priceMin ? parseInt(params.priceMin) : null,
+    priceMax: params.priceMax ? parseInt(params.priceMax) : null,
+    location: params.location || null,
+    continent: params.continent ? params.continent.split(',') : [],
+    country: params.country ? params.country.split(',') : [],
+    tagName: params.tagName ? params.tagName.split(',') : [],
   };
 
   // Fetch filtered destinations and countries/continents on the server
@@ -128,9 +128,6 @@ const DestinationPage = async ({ searchParams }: DestinationPageProps) => {
                     uniqueDestinations.getUniqueDestinationLocations
                   }
                   countriesContinentsData={countriesContinentsData}
-                  initialContinents={filter.continent}
-                  initialCountries={filter.country}
-                  initialSearchValue={(await searchParams).location}
                 />
               </aside>
               <div
@@ -156,9 +153,6 @@ const DestinationPage = async ({ searchParams }: DestinationPageProps) => {
                         uniqueDestinations.getUniqueDestinationLocations
                       }
                       countriesContinentsData={countriesContinentsData}
-                      initialContinents={filter.continent}
-                      initialCountries={filter.country}
-                      initialSearchValue={(await searchParams).location}
                     />
                   </aside>
                 </div>

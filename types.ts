@@ -12,6 +12,14 @@ export type DestinationFilterType = {
   country?: string[];
 };
 
+export interface CountriesContinentsData {
+  getCountriesAndContinents: {
+    country: string;
+    continent: string;
+    destinationCount: number;
+  }[];
+}
+
 export interface Tag {
   id: string;
   name: string;

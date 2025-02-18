@@ -3,14 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import CountryContinentFilter from '../common/country-continent-filter';
 import MainFilterSearchBox from '../common/main-filter-search-box';
+import { CountriesContinentsData } from '@/types';
 
-interface CountriesContinentsData {
-  getCountriesAndContinents: {
-    country: string;
-    continent: string;
-    destinationCount: number;
-  }[];
-}
+
 
 interface DestinationSidebarProps {
   countriesContinentsData: CountriesContinentsData;
