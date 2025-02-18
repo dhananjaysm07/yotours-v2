@@ -1,8 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import InvertedHeader from './components.v2/inverted-header';
+import InvertedHeader from './components/inverted-header';
 import BsImport from './bs-import';
-import Footer from './components.v2/footer';
+import Footer from './components/footer';
 
 const NotFound = () => {
   const data = {

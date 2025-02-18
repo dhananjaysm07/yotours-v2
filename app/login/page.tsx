@@ -1,9 +1,9 @@
-import Footer from '@/app/components.v2/footer';
-import InvertedHeader from '@/app/components.v2/inverted-header';
+import Footer from '@/app/components/footer';
+import InvertedHeader from '@/app/components/inverted-header';
 import { Metadata } from 'next';
 import getPageMeta from '@/lib/get-page-meta';
-import LoginForm from '@/app/components.v2/common/login-form';
-import LoginWithSocial from '@/app/components.v2/common/login-social';
+import LoginForm from '@/app/components/common/login-form';
+import LoginWithSocial from '@/app/components/common/login-social';
 
 export const metadata: Metadata = getPageMeta(
   'Login',

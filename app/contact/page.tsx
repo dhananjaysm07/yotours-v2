@@ -5,13 +5,13 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import 'swiper/css/scrollbar';
 import 'swiper/css/effect-cards';
-import BlockGuide from '@/app/components.v2/common/block-guide';
-import Footer from '../components.v2/footer';
+import BlockGuide from '@/app/components/common/block-guide';
+import Footer from '../components/footer';
 
-import Address from '../components.v2/common/address';
-import ContactForm from '../components.v2/common/contact-form';
-import Social from '../components.v2/common/social';
-import InvertedHeader from '../components.v2/inverted-header';
+import Address from '../components/common/address';
+import ContactForm from '../components/common/contact-form';
+import Social from '../components/common/social';
+import InvertedHeader from '../components/inverted-header';
 
 export const metadata: Metadata = getPageMeta(
   'Contact',

@@ -1,10 +1,10 @@
 import parse from 'html-react-parser';
 import styles from './about.module.scss';
-import Footer from '../components.v2/footer';
+import Footer from '../components/footer';
 import getPageMeta from '@/lib/get-page-meta';
 import { Metadata } from 'next';
 import { getContentData } from '@/lib/apollo/common-api-funcs';
-import InvertedHeader from '../components.v2/inverted-header';
+import InvertedHeader from '../components/inverted-header';
 
 export const metadata: Metadata = getPageMeta(
   'About Us',

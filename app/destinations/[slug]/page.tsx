@@ -5,19 +5,19 @@ import {
   GET_THINGS_FOR_DESTINATION,
   GET_ATTRACTION_CARS_FOR_DESTINATION,
 } from '@/graphql/single-queries';
-import LocationTopBar from '@/app/components.v2/destination-details/location-top-bar';
-import LoadingDestinationBanner from '@/app/components.v2/destination-details/loading';
-import Banner from '@/app/components.v2/destination-details/banner';
-import GeneralInfo from '@/app/components.v2/destination-details/general-info';
-import Things from '@/app/components.v2/destination-details/things';
-import Tours from '@/app/components.v2/destination-details/tours';
-import ActivityCar from '@/app/components.v2/destination-details/activity-car';
-import IntroTown from '@/app/components.v2/destination-details/intro-town';
-import Footer from '@/app/components.v2/footer';
-import InvertedHeader from '@/app/components.v2/inverted-header';
-import Categories from '@/app/components.v2/destination-details/categories';
-import { SectionTitle } from '@/app/components.v2/destination-details/section-title';
-import { ExpandableSection } from '@/app/components.v2/destination-details/expandable-section';
+import LocationTopBar from '@/app/components/destination-details/location-top-bar';
+import LoadingDestinationBanner from '@/app/components/destination-details/loading';
+import Banner from '@/app/components/destination-details/banner';
+import GeneralInfo from '@/app/components/destination-details/general-info';
+import Things from '@/app/components/destination-details/things';
+import Tours from '@/app/components/destination-details/tours';
+import ActivityCar from '@/app/components/destination-details/activity-car';
+import IntroTown from '@/app/components/destination-details/intro-town';
+import Footer from '@/app/components/footer';
+import InvertedHeader from '@/app/components/inverted-header';
+import Categories from '@/app/components/destination-details/categories';
+import { SectionTitle } from '@/app/components/destination-details/section-title';
+import { ExpandableSection } from '@/app/components/destination-details/expandable-section';
 import { GET_CONTENT_QUERY } from '@/graphql/query';
 
 export const metadata = {

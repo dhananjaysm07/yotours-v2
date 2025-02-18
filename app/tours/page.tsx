@@ -6,12 +6,12 @@ import {
   GET_TOUR_LOCATIONS,
   GET_ALL_TAGS,
 } from "@/graphql/query";
-import Pagination from "../components.v2/common/pagination";
-import InvertedHeader from "../components.v2/inverted-header";
-import Footer from "../components.v2/footer";
-import Sidebar from "../components.v2/tours/tours-sidebar";
-import TourProperties from "../components.v2/tours/tour-properties";
-import TopHeaderFilter from "../components.v2/common/top-header-filter";
+import Pagination from "../components/common/pagination";
+import InvertedHeader from "../components/inverted-header";
+import Footer from "../components/footer";
+import Sidebar from "../components/tours/tours-sidebar";
+import TourProperties from "../components/tours/tour-properties";
+import TopHeaderFilter from "../components/common/top-header-filter";
 import { getContentData } from "@/lib/apollo/common-api-funcs";
 
 export const metadata: Metadata = {

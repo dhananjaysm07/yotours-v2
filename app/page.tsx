@@ -6,36 +6,25 @@ import 'swiper/css/navigation';
 import 'swiper/css/scrollbar';
 import 'swiper/css/effect-cards';
 
-import CookieConsentBar from '@/app/components.v2/ui/cookie-consent';
-import Header from '@/app/components.v2/common/header';
+import CookieConsentBar from '@/app/components/ui/cookie-consent';
+import Header from '@/app/components/common/header';
 import { constants } from '@/constants';
 import { getApolloClient } from '@/lib/apollo/apollo-client-ssr';
 import { unstable_cache } from 'next/cache';
 import BsImport from './bs-import';
-import Hero from '@/app/components.v2/common/hero';
-import Destination from '@/app/components.v2/destinations';
-import BlockGuide from '@/app/components.v2/common/block-guide';
-import AdBanners from '@/app/components.v2/common/ad-banners';
-import Footer from '@components.v2/footer';
+import Hero from '@/app/components/common/hero';
+import Destination from '@/app/components/destinations';
+import BlockGuide from '@/app/components/common/block-guide';
+import AdBanners from '@/app/components/common/ad-banners';
+import Footer from '@/app/components/footer';
 import { gql } from '@apollo/client';
-import DestinationsWeLove from './components.v2/ui/destinations-we-love';
+import DestinationsWeLove from './components/ui/destinations-we-love';
 import { getContentData } from '@/lib/apollo/common-api-funcs';
 
 export const metadata: Metadata = getPageMeta(
   'Home',
   'Make your travel plans easier'
 );
-
-/***
- * Strategy
- * 1. Get all data in home page
- * 2. Call client side functions, pass data to them
- * 3. Render the client side components w/ hooks
- * 4. Set the initial state on the zustand store from parent (check how)
- * 5. ApolloWrapper sits inside at this level
- * 6. Data Provider also sits here
- * 7. Optimize Apollo client for ssr (use experimental)
- */
 
 // Only getContentData is processed here since it is required by more than one component
 
@@ -50,6 +39,15 @@ const DestinationWeLoveQuery = gql`
         id
         active
       }
+    }
+  }
+`;
+
+const DestinationQuery = gql`
+  query GetDestinations {
+    getDestinations {
+      id
+      destinationName
     }
   }
 `;
@@ -71,15 +69,32 @@ const getDestinationsWeLove = unstable_cache(
   { revalidate: constants.revalidationSeconds }
 );
 
+const getDestinations = unstable_cache(
+  async () => {
+    const client = getApolloClient();
+    try {
+      const data = await client.query({
+        query: DestinationQuery,
+      });
+      return data;
+    } catch (error) {
+      console.error('Error fetching DestinationQuery CONTENT:', error);
+      return { data: null };
+    }
+  },
+  ['GET_DESTINATIONS_QUERY'],
+  { revalidate: constants.revalidationSeconds }
+);
+
 const HomePage = async () => {
-  const [contentData, dwl] = await Promise.all([
+  const [contentData, dwl, destinations] = await Promise.all([
     getContentData(),
     getDestinationsWeLove(),
+    getDestinations(),
   ]);
 
   const { getContent } = contentData.data;
   const destinationsWeLove = dwl.data.getDestinations;
-
   const bokunChannelID = getContent.bokunChannelId;
 
   return (
@@ -87,7 +102,7 @@ const HomePage = async () => {
       <CookieConsentBar />
       <Header />
       <BsImport />
-      <Hero contentData={getContent} />
+      <Hero contentData={getContent} destinations={destinations.data} />
       <main>
         <Destination
           filter={{
