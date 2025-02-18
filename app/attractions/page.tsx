@@ -84,41 +84,34 @@ const getAllTags = unstable_cache(
   { revalidate: constants.revalidationSeconds }
 );
 
-export default async function AttractionsPage({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
+interface PageProps {
+  searchParams: {
+    page?: string;
+    priceMin?: string;
+    priceMax?: string;
+    location?: string;
+    continent?: string;
+    country?: string;
+    tagName?: string;
+  };
+}
+
+export default async function AttractionsPage(props: PageProps) {
+  const { searchParams } = props;
   const currentPage = Math.max(
     1,
-    typeof searchParams.page === "string" ? parseInt(searchParams.page) : 1
+    searchParams.page ? parseInt(searchParams.page) : 1
   );
   const dataPerPage = 9;
   const loadCount = 9;
 
   const filter = {
-    priceMin:
-      typeof searchParams.priceMin === "string"
-        ? parseInt(searchParams.priceMin)
-        : null,
-    priceMax:
-      typeof searchParams.priceMax === "string"
-        ? parseInt(searchParams.priceMax)
-        : null,
-    location:
-      typeof searchParams.location === "string" ? searchParams.location : null,
-    continent:
-      typeof searchParams.continent === "string"
-        ? searchParams.continent.split(",")
-        : [],
-    country:
-      typeof searchParams.country === "string"
-        ? searchParams.country.split(",")
-        : [],
-    tagName:
-      typeof searchParams.tagName === "string"
-        ? searchParams.tagName.split(",")
-        : [],
+    priceMin: searchParams.priceMin ? parseInt(searchParams.priceMin) : null,
+    priceMax: searchParams.priceMax ? parseInt(searchParams.priceMax) : null,
+    location: searchParams.location || null,
+    continent: searchParams.continent ? searchParams.continent.split(",") : [],
+    country: searchParams.country ? searchParams.country.split(",") : [],
+    tagName: searchParams.tagName ? searchParams.tagName.split(",") : [],
   };
 
   const [
