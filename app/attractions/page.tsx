@@ -84,12 +84,11 @@ const getAllTags = unstable_cache(
   { revalidate: constants.revalidationSeconds }
 );
 
-interface PageProps {
-  params: { slug: string };
+export default async function AttractionsPage({
+  searchParams,
+}: {
   searchParams: { [key: string]: string | string[] | undefined };
-}
-
-export default async function AttractionsPage({ searchParams }: PageProps) {
+}) {
   const currentPage = Math.max(
     1,
     typeof searchParams.page === "string" ? parseInt(searchParams.page) : 1
