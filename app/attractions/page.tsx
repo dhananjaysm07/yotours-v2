@@ -84,37 +84,42 @@ const getAllTags = unstable_cache(
   { revalidate: constants.revalidationSeconds }
 );
 
-interface SearchParams {
-  continent?: string;
-  country?: string;
-  priceMin?: string;
-  priceMax?: string;
-  location?: string;
-  tagName?: string;
-  page?: string;
+interface PageProps {
+  params: { slug: string };
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
-interface AttractionsPageProps {
-  searchParams: SearchParams;
-}
-
-export default async function AttractionsPage({
-  searchParams,
-}: AttractionsPageProps) {
-  // Await the searchParams
-  const params = await Promise.resolve(searchParams);
-
-  const currentPage = Math.max(1, params.page ? parseInt(params.page) : 1);
+export default async function AttractionsPage({ searchParams }: PageProps) {
+  const currentPage = Math.max(
+    1,
+    typeof searchParams.page === "string" ? parseInt(searchParams.page) : 1
+  );
   const dataPerPage = 9;
   const loadCount = 9;
 
   const filter = {
-    priceMin: params.priceMin ? parseInt(params.priceMin) : null,
-    priceMax: params.priceMax ? parseInt(params.priceMax) : null,
-    location: params.location || null,
-    continent: params.continent ? params.continent.split(",") : [],
-    country: params.country ? params.country.split(",") : [],
-    tagName: params.tagName ? params.tagName.split(",") : [],
+    priceMin:
+      typeof searchParams.priceMin === "string"
+        ? parseInt(searchParams.priceMin)
+        : null,
+    priceMax:
+      typeof searchParams.priceMax === "string"
+        ? parseInt(searchParams.priceMax)
+        : null,
+    location:
+      typeof searchParams.location === "string" ? searchParams.location : null,
+    continent:
+      typeof searchParams.continent === "string"
+        ? searchParams.continent.split(",")
+        : [],
+    country:
+      typeof searchParams.country === "string"
+        ? searchParams.country.split(",")
+        : [],
+    tagName:
+      typeof searchParams.tagName === "string"
+        ? searchParams.tagName.split(",")
+        : [],
   };
 
   const [
