@@ -1,7 +1,7 @@
-import Image from 'next/image';
-import FadeUpAnimation from './fade-up';
-import AppSearch from '../app-search/app-search';
-import { GetDestinations } from '@/types';
+import Image from "next/image";
+import FadeUpAnimation from "./fade-up";
+import AppSearch from "../app-search/app-search";
+import { GetDestinations } from "@/types";
 
 interface ContentData {
   heroImage?: string;
@@ -16,7 +16,6 @@ const Hero = ({
   contentData: ContentData;
   destinations: GetDestinations;
 }) => {
-
   if (!contentData) return <></>;
   return (
     <section className="masthead -type-1 relative">
@@ -24,14 +23,14 @@ const Hero = ({
         <Image
           alt="image"
           style={{
-            height: '100%',
-            width: '100%',
-            objectFit: 'cover',
+            height: "100%",
+            width: "100%",
+            objectFit: "cover",
           }}
           placeholder="empty"
           width={1280}
           height={720}
-          src={contentData?.heroImage || '/img/01-landingpage.jpg'}
+          src={contentData?.heroImage || "/img/01-landingpage.jpg"}
           priority
         />
       </div>
@@ -41,14 +40,14 @@ const Hero = ({
             <div className="text-center">
               <FadeUpAnimation delay={0.1}>
                 <h1 className="text-60 lg:text-40 md:text-30 text-white">
-                  {contentData?.heroHeading || 'Find Next Place To Visit'}
+                  {contentData?.heroHeading || "Find Next Place To Visit"}
                 </h1>
               </FadeUpAnimation>
 
               <FadeUpAnimation delay={0.3}>
                 <p className="text-white mt-6 md:mt-10 text-25">
                   {contentData?.heroSubheading ||
-                    'Discover amazing places at exclusive deals'}
+                    "Discover amazing places at exclusive deals"}
                 </p>
               </FadeUpAnimation>
             </div>

@@ -1,21 +1,21 @@
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/navigation';
-import 'swiper/css/scrollbar';
-import 'swiper/css/effect-cards';
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
+import "swiper/css/scrollbar";
+import "swiper/css/effect-cards";
 
-import CookieConsentBar from '@/app/components/ui/cookie-consent';
-import Header from '@/app/components/common/header';
-import { constants } from '@/constants';
-import { GET_CONTENT_QUERY } from '@/graphql/query';
-import { getApolloClient } from '@/lib/apollo/apollo-client-ssr';
-import { unstable_cache } from 'next/cache';
-import Hero from './common/hero';
-import Destination from './destinations';
-import BlockGuide from './common/block-guide';
-import AdBanners from './common/ad-banners';
-import BsImport from '../bs-import';
-import Footer from './footer';
+import CookieConsentBar from "@/app/components/ui/cookie-consent";
+import Header from "@/app/components/common/header";
+import { constants } from "@/constants";
+import { GET_CONTENT_QUERY } from "@/graphql/query";
+import { getApolloClient } from "@/lib/apollo/apollo-client-ssr";
+import { unstable_cache } from "next/cache";
+import Hero from "./common/hero";
+import Destination from "./destinations";
+import BlockGuide from "./common/block-guide";
+import AdBanners from "./common/ad-banners";
+import BsImport from "../bs-import";
+import Footer from "./footer";
 
 /***
  * Strategy
@@ -39,11 +39,11 @@ const getContentData = unstable_cache(
       });
       return data;
     } catch (error) {
-      console.error('Error fetching HERO CONTENT:', error);
+      console.error("Error fetching HERO CONTENT:", error);
       return { data: null };
     }
   },
-  ['GET_CONTENT_QUERY'],
+  ["GET_CONTENT_QUERY"],
   { revalidate: constants.revalidationSeconds }
 );
 
@@ -59,12 +59,12 @@ const HomePage = async () => {
       <CookieConsentBar />
       <Header />
       <BsImport />
-      <Hero contentData={getContent} />
+      <Hero contentData={getContent} destinations={{ getDestinations: [] }} />
       <main>
         <Destination
           filter={{
             activeValues: [true],
-            continent: ['Europe'],
+            continent: ["Europe"],
           }}
           bokunChannelID={bokunChannelID}
         />
@@ -85,15 +85,15 @@ const HomePage = async () => {
         <Destination
           filter={{
             activeValues: [true],
-            continent: ['Asia'],
-            country: ['India'],
+            continent: ["Asia"],
+            country: ["India"],
           }}
           bokunChannelID={bokunChannelID}
         />
         <Destination
           filter={{
             activeValues: [true],
-            continent: ['Asia'],
+            continent: ["Asia"],
           }}
           bokunChannelID={bokunChannelID}
         />

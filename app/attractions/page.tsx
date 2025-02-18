@@ -1,32 +1,31 @@
-// app/attractions/page.tsx
-import { Metadata } from 'next';
-import { getApolloClient } from '@/lib/apollo/apollo-client-ssr';
+import { Metadata } from "next";
+import { getApolloClient } from "@/lib/apollo/apollo-client-ssr";
 import {
   GET_FILTERED_ATTRACTIONs,
   GET_COUNTRIES_CONTINENTS_ATTRACTIONS_QUERY,
   GET_ALL_TAGS,
-} from '@/graphql/query';
-import Pagination from '../components/common/pagination';
-import InvertedHeader from '../components/inverted-header';
-import Footer from '../components/footer';
-import TopHeaderFilter from '../components/common/top-header-filter';
-import { unstable_cache } from 'next/cache';
-import { constants } from '@/constants';
-import Sidebar from '../components/attractions/attraction-sidebar';
+} from "@/graphql/query";
+import Pagination from "../components/common/pagination";
+import InvertedHeader from "../components/inverted-header";
+import Footer from "../components/footer";
+import TopHeaderFilter from "../components/common/top-header-filter";
+import { unstable_cache } from "next/cache";
+import { constants } from "@/constants";
+import Sidebar from "../components/attractions/attraction-sidebar";
 import {
   AttractionCountriesContinentsData,
   GetFilteredAttractionsResponse,
   TagData,
-} from '@/types';
+} from "@/types";
 import {
   getContentData,
   getUniqueDestinations,
-} from '@/lib/apollo/common-api-funcs';
-import AttractionProperties from '../components/attractions/attraction-properties';
+} from "@/lib/apollo/common-api-funcs";
+import AttractionProperties from "../components/attractions/attraction-properties";
 
 export const metadata: Metadata = {
-  title: 'Attractions | Yo Tours',
-  description: 'Explore attractions with Yo Tours.',
+  title: "Attractions | Yo Tours",
+  description: "Explore attractions with Yo Tours.",
 };
 
 const getFilteredAttractions = async (
@@ -46,7 +45,7 @@ const getFilteredAttractions = async (
     });
     return data;
   } catch (error) {
-    console.error('Error fetching filtered attractions:', error);
+    console.error("Error fetching filtered attractions:", error);
     return { getFilteredAttractions: { attractions: [], totalCount: 0 } };
   }
 };
@@ -60,11 +59,11 @@ const getCountriesAndContinents = unstable_cache(
       });
       return data;
     } catch (error) {
-      console.error('Error fetching countries and continents:', error);
+      console.error("Error fetching countries and continents:", error);
       return { getCountriesAndContinentsForAttractions: [] };
     }
   },
-  ['GET_COUNTRIES_CONTINENTS_ATTRACTIONS_QUERY'],
+  ["GET_COUNTRIES_CONTINENTS_ATTRACTIONS_QUERY"],
   { revalidate: constants.revalidationSeconds }
 );
 
@@ -77,43 +76,45 @@ const getAllTags = unstable_cache(
       });
       return data;
     } catch (error) {
-      console.error('Error fetching tags:', error);
+      console.error("Error fetching tags:", error);
       return { getAllTags: [] };
     }
   },
-  ['GET_ALL_TAGS'],
+  ["GET_ALL_TAGS"],
   { revalidate: constants.revalidationSeconds }
 );
 
+interface SearchParams {
+  continent?: string;
+  country?: string;
+  priceMin?: string;
+  priceMax?: string;
+  location?: string;
+  tagName?: string;
+  page?: string;
+}
+
 interface AttractionsPageProps {
-  searchParams: {
-    continent?: string;
-    country?: string;
-    priceMin?: string;
-    priceMax?: string;
-    location?: string;
-    tagName?: string;
-    page?: string;
-  };
+  searchParams: SearchParams;
 }
 
 export default async function AttractionsPage({
   searchParams,
 }: AttractionsPageProps) {
-  const currentPage = Math.max(
-    1,
-    searchParams.page ? parseInt(searchParams.page) : 1
-  );
+  // Await the searchParams
+  const params = await Promise.resolve(searchParams);
+
+  const currentPage = Math.max(1, params.page ? parseInt(params.page) : 1);
   const dataPerPage = 9;
   const loadCount = 9;
 
   const filter = {
-    priceMin: searchParams.priceMin ? parseInt(searchParams.priceMin) : null,
-    priceMax: searchParams.priceMax ? parseInt(searchParams.priceMax) : null,
-    location: searchParams.location || null,
-    continent: searchParams.continent ? searchParams.continent.split(',') : [],
-    country: searchParams.country ? searchParams.country.split(',') : [],
-    tagName: searchParams.tagName ? searchParams.tagName.split(',') : [],
+    priceMin: params.priceMin ? parseInt(params.priceMin) : null,
+    priceMax: params.priceMax ? parseInt(params.priceMax) : null,
+    location: params.location || null,
+    continent: params.continent ? params.continent.split(",") : [],
+    country: params.country ? params.country.split(",") : [],
+    tagName: params.tagName ? params.tagName.split(",") : [],
   };
 
   const [
@@ -147,13 +148,9 @@ export default async function AttractionsPage({
                   uniqueAttractionLocations={
                     uniqueDestinationLocations.getUniqueDestinationLocations
                   }
-                  // uniqueAttractionLocations={}
                   countriesContinentsData={countriesContinentsData}
-                  //   tags={tagData}
-                  //   initialFilters={filter}
                 />
               </aside>
-              {/* Mobile sidebar */}
             </div>
 
             <div className="col-xl-9">

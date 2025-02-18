@@ -179,9 +179,6 @@ const ToursPage = async ({ searchParams }: ToursPageProps) => {
                     uniqueTourLocations.getUniqueTourLocations
                   }
                   countriesContinentsData={countriesContinentsData}
-                  initialContinents={filter.continent}
-                  initialCountries={filter.country}
-                  initialSearchValue={searchParams.location}
                 />
               </aside>
               <div
@@ -208,9 +205,6 @@ const ToursPage = async ({ searchParams }: ToursPageProps) => {
                       }
                       allTags={allTags}
                       countriesContinentsData={countriesContinentsData}
-                      initialContinents={filter.continent}
-                      initialCountries={filter.country}
-                      initialSearchValue={searchParams.location}
                     />
                   </aside>
                 </div>

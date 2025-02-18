@@ -1,13 +1,11 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
-import Slider from 'react-slick';
-import { createRoot } from 'react-dom/client';
-import SocialShareLink from '../common/social-share-link';
-import { Tour } from '@/types';
-
-
+import React, { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
+import Slider from "react-slick";
+import { createRoot } from "react-dom/client";
+import SocialShareLink from "../common/social-share-link";
+import { Tour } from "@/types";
 
 interface ToursProps {
   tours: Tour[];
@@ -18,14 +16,14 @@ interface ToursProps {
   };
 }
 
-function Arrow(props: { type: 'next' | 'prev' }) {
+function Arrow(props: { type: "next" | "prev" }) {
   const className =
-    props.type === 'next'
-      ? 'slick_arrow-between slick_arrow -next arrow-md flex-center button -blue-1 bg-white shadow-1 size-30 rounded-full sm:d-none js-next'
-      : 'slick_arrow-between slick_arrow -prev arrow-md flex-center button -blue-1 bg-white shadow-1 size-30 rounded-full sm:d-none js-prev';
+    props.type === "next"
+      ? "slick_arrow-between slick_arrow -next arrow-md flex-center button -blue-1 bg-white shadow-1 size-30 rounded-full sm:d-none js-next"
+      : "slick_arrow-between slick_arrow -prev arrow-md flex-center button -blue-1 bg-white shadow-1 size-30 rounded-full sm:d-none js-prev";
 
   const char =
-    props.type === 'next' ? (
+    props.type === "next" ? (
       <i className="icon icon-chevron-right text-12"></i>
     ) : (
       <span className="icon icon-chevron-left text-12"></span>
@@ -38,6 +36,7 @@ export default function Tours({ tours, contentData }: ToursProps) {
   const [clickedDataSrc, setClickedDataSrc] = useState<string | null>(null);
   const [visibleTours, setVisibleTours] = useState(8);
   const [loading, setLoading] = useState(false);
+  const [scriptLoaded, setScriptLoaded] = useState(false);
 
   const handleLoadMore = () => {
     setLoading(true);
@@ -47,50 +46,85 @@ export default function Tours({ tours, contentData }: ToursProps) {
     }, 500);
   };
 
+  // Load Bokun script only once
   useEffect(() => {
     const bokunChannelId = contentData?.getContent.bokunChannelId;
     if (!bokunChannelId) {
-      console.error('Bokun Channel ID is not available.');
+      console.error("Bokun Channel ID is not available.");
       return;
     }
 
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelId}`;
-    script.async = true;
-    document.body.appendChild(script);
+    const existingScript = document.querySelector('script[src*="bokun.io"]');
+    if (!existingScript && !scriptLoaded) {
+      const script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelId}`;
+      script.async = true;
 
-    script.onload = () => {
-      setTimeout(() => {
+      script.onload = () => {
+        setScriptLoaded(true);
+      };
+
+      document.body.appendChild(script);
+
+      return () => {
+        document.body.removeChild(script);
+        setScriptLoaded(false);
+      };
+    } else {
+      setScriptLoaded(true);
+    }
+  }, [contentData?.getContent.bokunChannelId, scriptLoaded]);
+
+  // Handle widget container and social share
+  useEffect(() => {
+    if (scriptLoaded && clickedDataSrc) {
+      const initializeWidget = () => {
         const widgetContainer = document.getElementById(
-          'bokun-modal-container'
+          "bokun-modal-container"
         );
         if (widgetContainer) {
-          const socialDiv = document.createElement('div');
-          socialDiv.className = 'socialurl';
+          // Remove existing social div if present
+          const existingSocialDiv = widgetContainer.querySelector(".socialurl");
+          if (existingSocialDiv) {
+            widgetContainer.removeChild(existingSocialDiv);
+          }
+
+          // Create new social div
+          const socialDiv = document.createElement("div");
+          socialDiv.className = "socialurl";
           widgetContainer.appendChild(socialDiv);
 
           const socialLink = (
-            <SocialShareLink bokunWidgetUrl={clickedDataSrc!} />
+            <SocialShareLink bokunWidgetUrl={clickedDataSrc} />
           );
+
           if (socialLink.props.bokunWidgetUrl) {
             createRoot(socialDiv).render(socialLink);
-          } else {
-            widgetContainer.removeChild(socialDiv);
           }
         }
-      }, 2000);
-    };
+      };
 
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, [contentData?.getContent.bokunChannelId, clickedDataSrc]);
+      // Give the widget time to mount
+      const timer = setTimeout(initializeWidget, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [clickedDataSrc, scriptLoaded]);
 
-  const handleBokunButtonClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    const target = event.currentTarget as HTMLDivElement;
-    setClickedDataSrc(target.getAttribute('data-src'));
-  };
+  const handleBokunButtonClick = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      const dataSrc = event.currentTarget.getAttribute("data-src");
+      if (dataSrc) {
+        setClickedDataSrc(dataSrc);
+
+        // Reset any existing Bokun widgets
+        if (window.BokunWidgetLoader) {
+          window.BokunWidgetLoader.reset();
+        }
+      }
+    },
+    []
+  );
 
   const sliderSettings = {
     dots: true,
@@ -104,23 +138,23 @@ export default function Tours({ tours, contentData }: ToursProps) {
   const allTours = tours?.filter((el) => el.active) || [];
 
   const getTagClassName = (tagName?: string) => {
-    if (!tagName) return 'bg-blue-1 text-white';
+    if (!tagName) return "bg-blue-1 text-white";
 
     const lowerTagName = tagName.toLowerCase();
-    if (lowerTagName.includes('trending')) return 'bg-dark-1 text-white';
+    if (lowerTagName.includes("trending")) return "bg-dark-1 text-white";
     if (
-      lowerTagName.includes('best seller') ||
-      lowerTagName.includes('most popular')
+      lowerTagName.includes("best seller") ||
+      lowerTagName.includes("most popular")
     )
-      return 'bg-blue-1 text-white';
-    if (lowerTagName.includes('sale')) return 'bg-yellow-1 text-white';
-    return 'bg-pink-1 text-white';
+      return "bg-blue-1 text-white";
+    if (lowerTagName.includes("sale")) return "bg-yellow-1 text-white";
+    return "bg-pink-1 text-white";
   };
 
   return (
     <div
       className="row y-gap-30 pt-10 sm:pt-20 item_gap-x30"
-      key={'bokun-tours-card-grid'}
+      key={"bokun-tours-card-grid"}
     >
       {allTours.length > 0 ? (
         <>
@@ -133,7 +167,7 @@ export default function Tours({ tours, contentData }: ToursProps) {
             >
               <div
                 className="bokunButton tourCard -type-1 rounded-4 hover-inside-slider"
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: "pointer" }}
                 data-src={`https://widgets.bokun.io/online-sales/${contentData?.getContent.bokunChannelId}/experience/${tour.tourBokunId}?partialView=1`}
                 onClick={handleBokunButtonClick}
               >
@@ -152,9 +186,9 @@ export default function Tours({ tours, contentData }: ToursProps) {
                               width={300}
                               height={300}
                               className="col-12 js-lazy"
-                              src={slide.imageUrl || '/img/default-tour.jpg'}
+                              src={slide.imageUrl || "/img/default-tour.jpg"}
                               alt={tour.tourTitle}
-                              style={{ objectFit: 'cover' }}
+                              style={{ objectFit: "cover" }}
                             />
                           </div>
                         </div>
@@ -187,8 +221,8 @@ export default function Tours({ tours, contentData }: ToursProps) {
                         <div className="text-14 text-light-1">
                           From
                           <span className="text-16 fw-500 text-dark-1">
-                            {' '}
-                            {tour.currency || 'US$'} {tour.price}
+                            {" "}
+                            {tour.currency || "US$"} {tour.price}
                           </span>
                         </div>
                       </div>
@@ -206,7 +240,7 @@ export default function Tours({ tours, contentData }: ToursProps) {
                 onClick={handleLoadMore}
                 disabled={loading}
               >
-                {loading ? 'Loading...' : 'Show More'}
+                {loading ? "Loading..." : "Show More"}
               </button>
             </div>
           )}
