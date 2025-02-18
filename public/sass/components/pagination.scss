@@ -162,7 +162,9 @@
 
 .swiperpagination{
   .swiper-pagination{
+    position: relative;
       top: calc( 100% + 15px);
+
       @media screen and (max-width: 768px) {
         white-space: nowrap;
         overflow-x: auto;

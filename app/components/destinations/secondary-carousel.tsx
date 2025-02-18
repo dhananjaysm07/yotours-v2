@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { useEffect } from "react";
-import { createRoot } from "react-dom/client";
-import { Navigation, Pagination } from "swiper/modules";
-import { TAB_OPTIONS } from "./tours-and-attractions";
-import SocialShareLink from "../common/social-share-link";
+import Image from 'next/image';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
+import { Navigation, Pagination } from 'swiper/modules';
+import { TAB_OPTIONS } from './tours-and-attractions';
+import SocialShareLink from '../common/social-share-link';
 
 interface ImageData {
   imageUrl: string;
@@ -47,12 +47,12 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
 }) => {
   useEffect(() => {
     if (!bokunChannelID) {
-      console.error("Bokun Channel ID is not available.");
+      console.error('Bokun Channel ID is not available.');
       return;
     }
 
-    const script = document.createElement("script");
-    script.type = "text/javascript";
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
     script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelID}`;
     script.async = true;
     document.body.appendChild(script);
@@ -60,15 +60,15 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
     script.onload = () => {
       setTimeout(() => {
         const widgetContainer = document.getElementById(
-          "bokun-modal-container"
+          'bokun-modal-container'
         );
         if (!widgetContainer) {
-          console.error("Widget container not found.");
+          console.error('Widget container not found.');
           return;
         }
 
-        const socialDiv = document.createElement("div");
-        socialDiv.className = "socialurl";
+        const socialDiv = document.createElement('div');
+        socialDiv.className = 'socialurl';
         widgetContainer.appendChild(socialDiv);
         createRoot(socialDiv).render(<SocialShareLink bokunWidgetUrl="" />);
       }, 2000);
@@ -82,14 +82,14 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
   const isTour = filter === TAB_OPTIONS.TOUR;
 
   const getTagClassName = (tagName: string | undefined): string => {
-    if (!tagName) return "";
+    if (!tagName) return '';
 
     const lowerTagName = tagName.toLowerCase();
-    if (lowerTagName === "trending") return "bg-dark-1 text-white";
-    if (lowerTagName === "best seller" || lowerTagName === "most popular tours")
-      return "bg-blue-1 text-white";
-    if (lowerTagName.includes("sale")) return "bg-yellow-1 text-white";
-    return "bg-pink-1 text-white";
+    if (lowerTagName === 'trending') return 'bg-dark-1 text-white';
+    if (lowerTagName === 'best seller' || lowerTagName === 'most popular tours')
+      return 'bg-blue-1 text-white';
+    if (lowerTagName.includes('sale')) return 'bg-yellow-1 text-white';
+    return 'bg-pink-1 text-white';
   };
 
   return (
@@ -120,7 +120,7 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
             <div className="col-12" data-aos="fade" data-aos-delay="100">
               <div
                 className="bokunButton hotelsCard -type-1 hover-inside-slider"
-                style={{ cursor: "pointer" }}
+                style={{ cursor: 'pointer' }}
                 data-src={`https://widgets.bokun.io/online-sales/${bokunChannelID}/experience/${
                   isTour ? item.tourBokunId : item.attractionBokunId
                 }?partialView=1`}
@@ -137,7 +137,7 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
                             className="rounded-4 col-12"
                             src={slide.imageUrl}
                             alt="image"
-                            style={{ objectFit: "cover" }}
+                            style={{ objectFit: 'cover' }}
                           />
                         </div>
                       </div>
@@ -169,11 +169,11 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
                     </span>
                   </h4>
                   <p className="text-light-1 lh-14 text-14 mt-5">
-                    {item?.location + ", " + item?.destination.country}
+                    {item?.location + ', ' + item?.destination.country}
                   </p>
                   <div className="mt-5">
                     <div className="fw-500">
-                      Starting from{" "}
+                      Starting from{' '}
                       <span className="text-blue-1">
                         {item?.currency} {item?.price}
                       </span>
