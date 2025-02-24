@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, lazy, Suspense } from "react";
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
@@ -8,10 +8,12 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { createRoot } from "react-dom/client";
-import SocialShareLink from "../common/social-share-link";
 
-// Type definitions
-export interface Tour {
+// Lazy load the social share component
+const SocialShareLink = lazy(() => import("../common/social-share-link"));
+
+// Types remain the same
+interface Tour {
   id: string;
   tourTitle: string;
   location: string;
@@ -28,7 +30,6 @@ interface TourPropertiesProps {
   bokunChannelId: string;
 }
 
-// Declare global window type
 declare global {
   interface Window {
     BokunWidgetLoader?: {
@@ -38,85 +39,57 @@ declare global {
 }
 
 const TourProperties = ({ tours, bokunChannelId }: TourPropertiesProps) => {
-  const [clickedDataSrc, setClickedDataSrc] = useState<string | null>(null);
-  const [scriptLoaded, setScriptLoaded] = useState(false);
-
-  // Load Bokun script only once
-  useEffect(() => {
-    if (bokunChannelId && !scriptLoaded) {
-      const existingScript = document.querySelector('script[src*="bokun.io"]');
-
-      if (!existingScript) {
+  // Load Bokun script only when needed
+  const loadBokunScript = useCallback(async () => {
+    if (!document.querySelector('script[src*="bokun.io"]')) {
+      return new Promise((resolve) => {
         const script = document.createElement("script");
         script.type = "text/javascript";
         script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelId}`;
         script.async = true;
-
-        script.onload = () => {
-          setScriptLoaded(true);
-        };
-
+        script.onload = resolve;
         document.body.appendChild(script);
-
-        return () => {
-          document.body.removeChild(script);
-          setScriptLoaded(false);
-        };
-      } else {
-        setScriptLoaded(true);
-      }
+      });
     }
   }, [bokunChannelId]);
 
-  // Handle widget container and social share
-  useEffect(() => {
-    if (scriptLoaded && clickedDataSrc) {
-      const initializeWidget = () => {
-        const widgetContainer = document.getElementById(
-          "bokun-modal-container"
-        );
-        if (widgetContainer) {
-          // Remove existing social div if present
-          const existingSocialDiv = widgetContainer.querySelector(".socialurl");
-          if (existingSocialDiv) {
-            widgetContainer.removeChild(existingSocialDiv);
-          }
-
-          // Create new social div
-          const socialDiv = document.createElement("div");
-          socialDiv.className = "socialurl";
-          widgetContainer.appendChild(socialDiv);
-
-          const socialLink = (
-            <SocialShareLink bokunWidgetUrl={clickedDataSrc} />
-          );
-
-          if (socialLink.props.bokunWidgetUrl) {
-            createRoot(socialDiv).render(socialLink);
-          }
-        }
-      };
-
-      // Give the widget time to mount
-      const timer = setTimeout(initializeWidget, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [clickedDataSrc, scriptLoaded]);
-
   const handleBokunButtonClick = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
+    async (event: React.MouseEvent<HTMLDivElement>) => {
       const dataSrc = event.currentTarget.getAttribute("data-src");
-      setClickedDataSrc(dataSrc);
+
+      // Load Bokun script only when user clicks
+      await loadBokunScript();
 
       // Reset any existing Bokun widgets
       if (window.BokunWidgetLoader) {
         window.BokunWidgetLoader.reset();
       }
+
+      // Initialize social share after modal opens
+      setTimeout(() => {
+        const widgetContainer = document.getElementById(
+          "bokun-modal-container"
+        );
+        if (widgetContainer && dataSrc) {
+          const socialDiv = document.createElement("div");
+          socialDiv.className = "socialurl";
+          widgetContainer.appendChild(socialDiv);
+
+          const root = document.createElement("div");
+          socialDiv.appendChild(root);
+
+          createRoot(root).render(
+            <Suspense fallback={<div>Loading...</div>}>
+              <SocialShareLink bokunWidgetUrl={dataSrc} />
+            </Suspense>
+          );
+        }
+      }, 1000);
     },
-    []
+    [loadBokunScript]
   );
 
-  const getBadgeClasses = (tagName: string) => {
+  const getBadgeClasses = useCallback((tagName: string) => {
     const baseClasses =
       "py-5 px-15 relative rounded-right-4 text-12 lh-16 fw-500 uppercase";
     const specialCases = {
@@ -131,7 +104,7 @@ const TourProperties = ({ tours, bokunChannelId }: TourPropertiesProps) => {
     );
 
     return `${baseClasses} ${match ? match[1] : specialCases.default}`;
-  };
+  }, []);
 
   return (
     <>
@@ -162,14 +135,11 @@ const TourProperties = ({ tours, bokunChannelId }: TourPropertiesProps) => {
                         <Image
                           width={300}
                           height={300}
-                          src={
-                            image.imageUrl
-                              ? image.imageUrl
-                              : "/img/placeholder-img.webp"
-                          }
+                          src={image.imageUrl || "/img/placeholder-img.webp"}
                           alt={`${tour.tourTitle} - Image ${idx + 1}`}
                           className="rounded-4 col-12 js-lazy"
                           priority={idx === 0}
+                          loading={idx === 0 ? "eager" : "lazy"}
                         />
                       </SwiperSlide>
                     ))}
