@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Slider from 'react-slick';
-import { createRoot } from 'react-dom/client';
-import { JSX, useEffect } from 'react';
-import { Attraction, ContentData } from '@/types';
-import SocialShareLink from './social-share-link';
-import { motion } from 'framer-motion';
+import Image from "next/image";
+import Slider from "react-slick";
+import { createRoot } from "react-dom/client";
+import { JSX, useEffect } from "react";
+import { Attraction, ContentData } from "@/types";
+import SocialShareLink from "./social-share-link";
+import { motion } from "framer-motion";
 interface ActivityProps {
   contentData: ContentData;
   attractions: Attraction[];
 }
 
 interface ArrowProps {
-  type: 'next' | 'prev';
+  type: "next" | "prev";
   onClick?: () => void;
 }
 
@@ -28,7 +28,7 @@ const itemSettings = {
 const Arrow = ({ type, onClick }: ArrowProps): JSX.Element => {
   const className = `slick_arrow-between slick_arrow -${type} arrow-md flex-center button -blue-1 bg-white shadow-1 size-30 rounded-full sm:d-none js-${type} arrow`;
   const icon =
-    type === 'next' ? (
+    type === "next" ? (
       <i className="icon icon-chevron-right text-12" />
     ) : (
       <span className="icon icon-chevron-left text-12" />
@@ -42,26 +42,26 @@ const Arrow = ({ type, onClick }: ArrowProps): JSX.Element => {
 };
 
 const getTagClassName = (tagName: string | undefined): string => {
-  if (!tagName) return '';
+  if (!tagName) return "";
 
   const lowerTagName = tagName.toLowerCase();
-  if (lowerTagName === 'trending') return 'bg-dark-1 text-white';
-  if (lowerTagName === 'best seller' || lowerTagName === 'most popular tours')
-    return 'bg-blue-1 text-white';
-  if (lowerTagName.includes('sale')) return 'bg-yellow-1 text-white';
-  return 'bg-pink-1 text-white';
+  if (lowerTagName === "trending") return "bg-dark-1 text-white";
+  if (lowerTagName === "best seller" || lowerTagName === "most popular tours")
+    return "bg-blue-1 text-white";
+  if (lowerTagName.includes("sale")) return "bg-yellow-1 text-white";
+  return "bg-pink-1 text-white";
 };
 
 const Activity = ({ contentData, attractions }: ActivityProps): JSX.Element => {
   useEffect(() => {
     const bokunChannelId = contentData?.bokunChannelId;
     if (!bokunChannelId) {
-      console.error('Bokun Channel ID is not available.');
+      console.error("Bokun Channel ID is not available.");
       return;
     }
 
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
+    const script = document.createElement("script");
+    script.type = "text/javascript";
     script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelId}`;
     script.async = true;
     document.body.appendChild(script);
@@ -69,15 +69,15 @@ const Activity = ({ contentData, attractions }: ActivityProps): JSX.Element => {
     script.onload = () => {
       setTimeout(() => {
         const widgetContainer = document.getElementById(
-          'bokun-modal-container'
+          "bokun-modal-container"
         );
         if (!widgetContainer) {
-          console.error('Widget container not found.');
+          console.error("Widget container not found.");
           return;
         }
 
-        const socialDiv = document.createElement('div');
-        socialDiv.className = 'socialurl';
+        const socialDiv = document.createElement("div");
+        socialDiv.className = "socialurl";
         widgetContainer.appendChild(socialDiv);
         createRoot(socialDiv).render(<SocialShareLink bokunWidgetUrl="" />);
       }, 2000);
@@ -101,11 +101,11 @@ const Activity = ({ contentData, attractions }: ActivityProps): JSX.Element => {
             key={item.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.6, ease: 'easeOut' }}
+            transition={{ delay: 0.1, duration: 0.6, ease: "easeOut" }}
           >
             <div
               className="bokunButton tourCard -type-1 rounded-4 hover-inside-slider"
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: "pointer" }}
               data-src={`https://widgets.bokun.io/online-sales/${contentData?.bokunChannelId}/experience/${item.attractionBokunId}?partialView=1`}
             >
               <div className="activityCard__image position-relative">
@@ -157,9 +157,9 @@ const Activity = ({ contentData, attractions }: ActivityProps): JSX.Element => {
                   <div className="row justify-between items-center pt-10">
                     <div className="col-auto">
                       <div className="text-14 text-light-1">
-                        From{' '}
+                        From{" "}
                         <span className="text-16 fw-500 text-dark-1">
-                          {item.currency || 'US$'} {item.price}
+                          {item.currency || "US$"} {item.price}
                         </span>
                       </div>
                     </div>

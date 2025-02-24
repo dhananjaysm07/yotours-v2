@@ -1,11 +1,17 @@
 "use client";
+
+import { useCallback, lazy, Suspense } from "react";
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
-import { useState, useRef, useEffect, useCallback } from "react";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 import { Attraction } from "@/types";
-import { createRoot, Root } from "react-dom/client";
-import SocialShareLink from "../common/social-share-link";
+import { createRoot } from "react-dom/client";
+
+// Lazy load the social share component
+const SocialShareLink = lazy(() => import("../common/social-share-link"));
 
 interface AttractionPropertiesProps {
   attractions: Attraction[];
@@ -14,95 +20,70 @@ interface AttractionPropertiesProps {
   dataPerPage: number;
 }
 
+declare global {
+  interface Window {
+    BokunWidgetLoader?: {
+      reset: () => void;
+    };
+  }
+}
+
 const AttractionProperties = ({
   attractions,
   bokunChannelId,
 }: AttractionPropertiesProps) => {
-  const [clickedDataSrc, setClickedDataSrc] = useState<string | null>(null);
-  const scriptLoaded = useRef(false);
-  const socialRootRef = useRef<Root | null>(null);
-
-  // Load Bokun script only once
-  useEffect(() => {
-    if (bokunChannelId && !scriptLoaded.current) {
-      const existingScript = document.querySelector('script[src*="bokun.io"]');
-
-      if (!existingScript) {
+  // Load Bokun script only when needed
+  const loadBokunScript = useCallback(async () => {
+    if (!document.querySelector('script[src*="bokun.io"]')) {
+      return new Promise((resolve) => {
         const script = document.createElement("script");
         script.type = "text/javascript";
         script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelId}`;
         script.async = true;
-
-        script.onload = () => {
-          scriptLoaded.current = true;
-        };
-
+        script.onload = resolve;
         document.body.appendChild(script);
-
-        return () => {
-          document.body.removeChild(script);
-          scriptLoaded.current = false;
-        };
-      } else {
-        scriptLoaded.current = true;
-      }
+      });
     }
   }, [bokunChannelId]);
 
-  // Handle widget container and social share
-  useEffect(() => {
-    if (scriptLoaded.current && clickedDataSrc) {
-      const initializeWidget = () => {
+  const handleBokunButtonClick = useCallback(
+    async (event: React.MouseEvent<HTMLDivElement>) => {
+      const dataSrc = event.currentTarget.getAttribute("data-src");
+      if (!dataSrc) return;
+
+      // Load Bokun script only when user clicks
+      await loadBokunScript();
+
+      // Reset any existing Bokun widgets
+      if (window.BokunWidgetLoader) {
+        window.BokunWidgetLoader.reset();
+      }
+
+      // Initialize social share after modal opens
+      setTimeout(() => {
         const widgetContainer = document.getElementById(
           "bokun-modal-container"
         );
-        if (widgetContainer) {
-          // Remove existing social div if present
-          const existingSocialDiv = widgetContainer.querySelector(".socialurl");
-          if (existingSocialDiv) {
-            widgetContainer.removeChild(existingSocialDiv);
-          }
-
-          // Create new social div
+        if (widgetContainer && dataSrc) {
           const socialDiv = document.createElement("div");
           socialDiv.className = "socialurl";
           widgetContainer.appendChild(socialDiv);
 
-          // Unmount previous root if it exists
-          if (socialRootRef.current) {
-            socialRootRef.current.unmount();
-          }
+          const root = document.createElement("div");
+          socialDiv.appendChild(root);
 
-          // Create new root and render social link
-          socialRootRef.current = createRoot(socialDiv);
-          socialRootRef.current.render(
-            <SocialShareLink bokunWidgetUrl={clickedDataSrc || ""} />
+          createRoot(root).render(
+            <Suspense fallback={<div>Loading...</div>}>
+              <SocialShareLink bokunWidgetUrl={dataSrc} />
+            </Suspense>
           );
         }
-      };
-
-      // Give the widget time to mount
-      const timer = setTimeout(initializeWidget, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [clickedDataSrc]);
-
-  const handleBokunButtonClick = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      const dataSrc = event.currentTarget.getAttribute("data-src");
-      if (dataSrc) {
-        setClickedDataSrc(dataSrc);
-
-        // Reset any existing Bokun widgets
-        if (window.BokunWidgetLoader) {
-          window.BokunWidgetLoader.reset();
-        }
-      }
+      }, 1000);
     },
-    []
+    [loadBokunScript]
   );
 
-  const getBadgeClasses = (tagName: string) => {
+  const getBadgeClasses = useCallback((tagName: string) => {
     const baseClasses =
       "py-5 px-15 relative rounded-right-4 text-12 lh-16 fw-500 uppercase";
     const specialCases = {
@@ -117,7 +98,7 @@ const AttractionProperties = ({
     );
 
     return `${baseClasses} ${match ? match[1] : specialCases.default}`;
-  };
+  }, []);
 
   return (
     <>
@@ -156,6 +137,7 @@ const AttractionProperties = ({
                           alt={`${item.attractionTitle} - Image ${i + 1}`}
                           className="rounded-4 col-12 js-lazy"
                           priority={i === 0}
+                          loading={i === 0 ? "eager" : "lazy"}
                         />
                       </SwiperSlide>
                     ))}

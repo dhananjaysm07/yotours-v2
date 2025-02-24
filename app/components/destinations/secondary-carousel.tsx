@@ -1,12 +1,17 @@
 "use client";
 
+import { useState, useCallback, lazy, Suspense } from "react";
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { useEffect } from "react";
-import { createRoot } from "react-dom/client";
 import { Navigation, Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 import { TAB_OPTIONS } from "./tours-and-attractions";
-import SocialShareLink from "../common/social-share-link";
+import { createRoot } from "react-dom/client";
+
+// Lazy load the social share component
+const SocialShareLink = lazy(() => import("../common/social-share-link"));
 
 interface ImageData {
   imageUrl: string;
@@ -40,49 +45,79 @@ interface TourAttractionCarouselProps {
   filter: string;
 }
 
+declare global {
+  interface Window {
+    BokunWidgetLoader?: {
+      reset: () => void;
+    };
+  }
+}
+
 const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
   data,
   bokunChannelID,
   filter,
 }) => {
-  const uniqueId = data[0].id;
-  useEffect(() => {
+  const uniqueId = data[0]?.id;
+  const isTour = filter === TAB_OPTIONS.TOUR;
+
+  // Load Bokun script only when needed
+  const loadBokunScript = useCallback(async () => {
     if (!bokunChannelID) {
       console.error("Bokun Channel ID is not available.");
       return;
     }
 
-    const script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelID}`;
-    script.async = true;
-    document.body.appendChild(script);
+    if (!document.querySelector('script[src*="bokun.io"]')) {
+      return new Promise((resolve) => {
+        const script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelID}`;
+        script.async = true;
+        script.onload = resolve;
+        document.body.appendChild(script);
+      });
+    }
+  }, [bokunChannelID]);
 
-    script.onload = () => {
+  const handleBokunButtonClick = useCallback(
+    async (event: React.MouseEvent<HTMLDivElement>) => {
+      const dataSrc = event.currentTarget.getAttribute("data-src");
+      if (!dataSrc) return;
+
+      // Load Bokun script only when user clicks
+      await loadBokunScript();
+
+      // Reset any existing Bokun widgets
+      if (window.BokunWidgetLoader) {
+        window.BokunWidgetLoader.reset();
+      }
+
+      // Initialize social share after modal opens
       setTimeout(() => {
         const widgetContainer = document.getElementById(
           "bokun-modal-container"
         );
-        if (!widgetContainer) {
-          console.error("Widget container not found.");
-          return;
+        if (widgetContainer && dataSrc) {
+          const socialDiv = document.createElement("div");
+          socialDiv.className = "socialurl";
+          widgetContainer.appendChild(socialDiv);
+
+          const root = document.createElement("div");
+          socialDiv.appendChild(root);
+
+          createRoot(root).render(
+            <Suspense fallback={<div>Loading...</div>}>
+              <SocialShareLink bokunWidgetUrl={dataSrc} />
+            </Suspense>
+          );
         }
+      }, 1000);
+    },
+    [loadBokunScript]
+  );
 
-        const socialDiv = document.createElement("div");
-        socialDiv.className = "socialurl";
-        widgetContainer.appendChild(socialDiv);
-        createRoot(socialDiv).render(<SocialShareLink bokunWidgetUrl="" />);
-      }, 2000);
-    };
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, [bokunChannelID]);
-
-  const isTour = filter === TAB_OPTIONS.TOUR;
-
-  const getTagClassName = (tagName: string | undefined): string => {
+  const getTagClassName = useCallback((tagName: string | undefined): string => {
     if (!tagName) return "";
 
     const lowerTagName = tagName.toLowerCase();
@@ -91,7 +126,7 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
       return "bg-blue-1 text-white";
     if (lowerTagName.includes("sale")) return "bg-yellow-1 text-white";
     return "bg-pink-1 text-white";
-  };
+  }, []);
 
   return (
     <>
@@ -116,10 +151,9 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
           1200: { slidesPerView: 4 },
         }}
         onSwiper={(swiper) => {
-          // Make sure Swiper updates navigation after mounting
-          setTimeout(() => {
+          requestAnimationFrame(() => {
             swiper.navigation.update();
-          }, 0);
+          });
         }}
       >
         {data?.slice(0, 8).map((item) => (
@@ -131,6 +165,7 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
                 data-src={`https://widgets.bokun.io/online-sales/${bokunChannelID}/experience/${
                   isTour ? item.tourBokunId : item.attractionBokunId
                 }?partialView=1`}
+                onClick={handleBokunButtonClick}
               >
                 <div className="hotelsCard__image">
                   <div className="cardImage inside-slider">
@@ -143,15 +178,24 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
                             quality={75}
                             className="rounded-4 col-12"
                             src={slide.imageUrl}
-                            alt="image"
+                            alt={
+                              isTour
+                                ? item.tourTitle || ""
+                                : item.attractionTitle || ""
+                            }
                             style={{ objectFit: "cover" }}
+                            priority={i === 0}
+                            loading={i === 0 ? "eager" : "lazy"}
                           />
                         </div>
                       </div>
                     ))}
 
                     <div className="cardImage__wishlist">
-                      <button className="button -blue-1 bg-white size-30 rounded-full shadow-2">
+                      <button
+                        className="button -blue-1 bg-white size-30 rounded-full shadow-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <i className="icon-heart text-12" />
                       </button>
                     </div>
@@ -176,7 +220,9 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
                     </span>
                   </h4>
                   <p className="text-light-1 lh-14 text-14 mt-5">
-                    {item?.location + ", " + item?.destination.country}
+                    {item?.location && item?.destination?.country
+                      ? `${item.location}, ${item.destination.country}`
+                      : item?.location || item?.destination?.country}
                   </p>
                   <div className="mt-5">
                     <div className="fw-500">
