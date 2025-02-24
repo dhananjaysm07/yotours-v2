@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, lazy, Suspense } from "react";
+import { useCallback, lazy, Suspense } from "react";
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
