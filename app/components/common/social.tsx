@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 const Social = () => {
   const socialLinks = [
     {
@@ -21,7 +23,8 @@ const Social = () => {
   return (
     <div className="flex gap-4">
       {socialLinks.map((item) => (
-        <a
+        <Link
+          aria-label={item.icon}
           key={item.id}
           href={item.link}
           target="_blank"
@@ -30,7 +33,7 @@ const Social = () => {
           <i
             className={`fab fa-${item.icon} text-xl text-gray-700 hover:text-blue-600`}
           ></i>
-        </a>
+        </Link>
       ))}
     </div>
   );

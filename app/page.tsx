@@ -5,13 +5,13 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import 'swiper/css/scrollbar';
 import 'swiper/css/effect-cards';
+import BsImport from './bs-import';
 
 import CookieConsentBar from '@/app/components/ui/cookie-consent';
 import Header from '@/app/components/common/header';
 import { constants } from '@/constants';
 import { getApolloClient } from '@/lib/apollo/apollo-client-ssr';
 import { unstable_cache } from 'next/cache';
-import BsImport from './bs-import';
 import Hero from '@/app/components/common/hero';
 import Destination from '@/app/components/destinations';
 import BlockGuide from '@/app/components/common/block-guide';

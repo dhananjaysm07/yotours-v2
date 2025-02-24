@@ -69,6 +69,7 @@ const InvertedHeader = () => {
               <div className="d-none xl:d-flex x-gap-20 items-center pl-30 text-black">
                 <div>
                   <button
+                  aria-label='Toggle navigation'
                     className="d-flex items-center icon-menu text-inherit text-20"
                     data-bs-toggle="offcanvas"
                     aria-controls="mobile-sidebar_menu"

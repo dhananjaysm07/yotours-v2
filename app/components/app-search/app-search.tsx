@@ -54,6 +54,7 @@ const AppSearch = ({ destinations }: { destinations: GetDestinations }) => {
             className={`tabs__button text-15 fw-500 text-white pb-4 ${
               tab?.name === currentTab ? 'is-tab-el-active' : ''
             }`}
+            aria-label="Toggle Tabs/Attractions"
             onClick={() => setCurrentTab(tab?.name)}
           >
             {tab?.name}
@@ -82,6 +83,7 @@ const AppSearch = ({ destinations }: { destinations: GetDestinations }) => {
             <div className="button-item">
               <button
                 className="web-icon mainSearch__submit button -dark-1 h-60 px-35 col-12 rounded-100 bg-pink-1 text-white"
+                aria-label="Search"
                 onClick={handleSearch}
               >
                 Search

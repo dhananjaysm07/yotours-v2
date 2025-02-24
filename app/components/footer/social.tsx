@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 const Social = () => {
   const socialContent = [
     {
@@ -20,14 +22,15 @@ const Social = () => {
   return (
     <>
       {socialContent.map((item) => (
-        <a
+        <Link
+          aria-label={item.icon}
           href={item.link}
           target="_blank"
           rel="noopener noreferrer"
           key={item.id}
         >
           <i className={`${item.icon} text-14`} />
-        </a>
+        </Link>
       ))}
     </>
   );

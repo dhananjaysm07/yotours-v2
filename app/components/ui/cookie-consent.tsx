@@ -10,8 +10,8 @@ const CookieConsentBar = () => {
       buttonText="Accept"
       declineButtonText="Decline"
       cookieName="yotours-analytics-cookies"
-      style={{ background: 'rgb(201, 48, 95)' }}
-      buttonStyle={{ color: '#4e503b', fontSize: '13px' }}
+      style={{ background: 'rgb(227, 24, 85)' }}
+      buttonStyle={{ color: '#282923', fontSize: '13px' }}
       expires={150}
       buttonClasses="tabs__button text-14 fw-500 px-20 py-10 rounded-4 bg-light-2 js-tabs-button"
       enableDeclineButton={true}

@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import Link from "next/link";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Scrollbar } from "swiper/modules";
-import { createSlug } from "@/utils/slugify";
-import { Destination } from "@/types";
+import Image from 'next/image';
+import Link from 'next/link';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Scrollbar } from 'swiper/modules';
+import { createSlug } from '@/utils/slugify';
+import { Destination } from '@/types';
 
 interface DestinationCarouselProps {
   popularDestinations: Destination[];
@@ -67,7 +67,7 @@ const DestinationCarousel: React.FC<DestinationCarouselProps> = ({
                   quality={100}
                   src={item.bannerImage}
                   alt={item.destinationName}
-                  style={{ objectFit: "cover" }}
+                  style={{ objectFit: 'cover' }}
                   className="rounded-4" // Added for consistency with card design
                 />
               </div>
@@ -75,10 +75,10 @@ const DestinationCarousel: React.FC<DestinationCarouselProps> = ({
                 <div className="citiesCard__bg" />
                 <div className="citiesCard__top">
                   <div className="text-14 text-white">
-                    {item.tours?.filter((el) => el.active).length || 0}{" "}
-                    {" Tours"}{" "}
-                    {item.attractions?.filter((el) => el.active).length || 0}{" "}
-                    {" Attractions"}
+                    {item.tours?.filter((el) => el.active).length || 0}{' '}
+                    {' Tours'}{' '}
+                    {item.attractions?.filter((el) => el.active).length || 0}{' '}
+                    {' Attractions'}
                   </div>
                 </div>
                 <div className="citiesCard__bottom">
@@ -97,11 +97,13 @@ const DestinationCarousel: React.FC<DestinationCarouselProps> = ({
 
       <div>
         <button
+          aria-label="Previous slide"
           className={`section-slider-nav -prev flex-center button -pink-1 bg-white shadow-1 size-40 rounded-full js-destination-prev_${id}`}
         >
           <i className="icon icon-chevron-left text-12" />
         </button>
         <button
+          aria-label="Next slide"
           className={`section-slider-nav -next flex-center button -pink-1 bg-white shadow-1 size-40 rounded-full js-destination-next_${id}`}
         >
           <i className="icon icon-chevron-right text-12" />

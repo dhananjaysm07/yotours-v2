@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { useCallback, lazy, Suspense } from "react";
-import Image from "next/image";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-import { TAB_OPTIONS } from "./tours-and-attractions";
-import { createRoot } from "react-dom/client";
+import { useCallback, lazy, Suspense } from 'react';
+import Image from 'next/image';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import { TAB_OPTIONS } from './tours-and-attractions';
+import { createRoot } from 'react-dom/client';
 
 // Lazy load the social share component
-const SocialShareLink = lazy(() => import("../common/social-share-link"));
+const SocialShareLink = lazy(() => import('../common/social-share-link'));
 
 interface ImageData {
   imageUrl: string;
@@ -64,14 +64,14 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
   // Load Bokun script only when needed
   const loadBokunScript = useCallback(async () => {
     if (!bokunChannelID) {
-      console.error("Bokun Channel ID is not available.");
+      console.error('Bokun Channel ID is not available.');
       return;
     }
 
     if (!document.querySelector('script[src*="bokun.io"]')) {
       return new Promise((resolve) => {
-        const script = document.createElement("script");
-        script.type = "text/javascript";
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
         script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelID}`;
         script.async = true;
         script.onload = resolve;
@@ -82,7 +82,7 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
 
   const handleBokunButtonClick = useCallback(
     async (event: React.MouseEvent<HTMLDivElement>) => {
-      const dataSrc = event.currentTarget.getAttribute("data-src");
+      const dataSrc = event.currentTarget.getAttribute('data-src');
       if (!dataSrc) return;
 
       // Load Bokun script only when user clicks
@@ -96,14 +96,14 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
       // Initialize social share after modal opens
       setTimeout(() => {
         const widgetContainer = document.getElementById(
-          "bokun-modal-container"
+          'bokun-modal-container'
         );
         if (widgetContainer && dataSrc) {
-          const socialDiv = document.createElement("div");
-          socialDiv.className = "socialurl";
+          const socialDiv = document.createElement('div');
+          socialDiv.className = 'socialurl';
           widgetContainer.appendChild(socialDiv);
 
-          const root = document.createElement("div");
+          const root = document.createElement('div');
           socialDiv.appendChild(root);
 
           createRoot(root).render(
@@ -118,14 +118,14 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
   );
 
   const getTagClassName = useCallback((tagName: string | undefined): string => {
-    if (!tagName) return "";
+    if (!tagName) return '';
 
     const lowerTagName = tagName.toLowerCase();
-    if (lowerTagName === "trending") return "bg-dark-1 text-white";
-    if (lowerTagName === "best seller" || lowerTagName === "most popular tours")
-      return "bg-blue-1 text-white";
-    if (lowerTagName.includes("sale")) return "bg-yellow-1 text-white";
-    return "bg-pink-1 text-white";
+    if (lowerTagName === 'trending') return 'bg-dark-1 text-white';
+    if (lowerTagName === 'best seller' || lowerTagName === 'most popular tours')
+      return 'bg-blue-1 text-white';
+    if (lowerTagName.includes('sale')) return 'bg-yellow-1 text-white';
+    return 'bg-pink-1 text-white';
   }, []);
 
   return (
@@ -161,7 +161,7 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
             <div className="col-12" data-aos="fade" data-aos-delay="100">
               <div
                 className="bokunButton hotelsCard -type-1 hover-inside-slider"
-                style={{ cursor: "pointer" }}
+                style={{ cursor: 'pointer' }}
                 data-src={`https://widgets.bokun.io/online-sales/${bokunChannelID}/experience/${
                   isTour ? item.tourBokunId : item.attractionBokunId
                 }?partialView=1`}
@@ -180,12 +180,12 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
                             src={slide.imageUrl}
                             alt={
                               isTour
-                                ? item.tourTitle || ""
-                                : item.attractionTitle || ""
+                                ? item.tourTitle || ''
+                                : item.attractionTitle || ''
                             }
-                            style={{ objectFit: "cover" }}
+                            style={{ objectFit: 'cover' }}
                             priority={i === 0}
-                            loading={i === 0 ? "eager" : "lazy"}
+                            loading={i === 0 ? 'eager' : 'lazy'}
                           />
                         </div>
                       </div>
@@ -193,6 +193,7 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
 
                     <div className="cardImage__wishlist">
                       <button
+                        aria-label="Wishlist"
                         className="button -blue-1 bg-white size-30 rounded-full shadow-2"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -226,7 +227,7 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
                   </p>
                   <div className="mt-5">
                     <div className="fw-500">
-                      Starting from{" "}
+                      Starting from{' '}
                       <span className="text-blue-1">
                         {item?.currency} {item?.price}
                       </span>
@@ -241,11 +242,13 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
 
       <div>
         <button
+          aria-label="Previous slide"
           className={`section-slider-nav -prev flex-center button -pink-1 bg-white shadow-1 size-40 rounded-full js-destination-prev_${uniqueId}`}
         >
           <i className="icon icon-chevron-left text-12" />
         </button>
         <button
+          aria-label="Next slide"
           className={`section-slider-nav -next flex-center button -pink-1 bg-white shadow-1 size-40 rounded-full js-destination-next_${uniqueId}`}
         >
           <i className="icon icon-chevron-right text-12" />

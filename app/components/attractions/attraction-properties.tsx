@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { useCallback, lazy, Suspense } from "react";
-import Image from "next/image";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-import { Attraction } from "@/types";
-import { createRoot } from "react-dom/client";
+import { useCallback, lazy, Suspense } from 'react';
+import Image from 'next/image';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import { Attraction } from '@/types';
+import { createRoot } from 'react-dom/client';
 
 // Lazy load the social share component
-const SocialShareLink = lazy(() => import("../common/social-share-link"));
+const SocialShareLink = lazy(() => import('../common/social-share-link'));
 
 interface AttractionPropertiesProps {
   attractions: Attraction[];
@@ -36,8 +36,8 @@ const AttractionProperties = ({
   const loadBokunScript = useCallback(async () => {
     if (!document.querySelector('script[src*="bokun.io"]')) {
       return new Promise((resolve) => {
-        const script = document.createElement("script");
-        script.type = "text/javascript";
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
         script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelId}`;
         script.async = true;
         script.onload = resolve;
@@ -48,7 +48,7 @@ const AttractionProperties = ({
 
   const handleBokunButtonClick = useCallback(
     async (event: React.MouseEvent<HTMLDivElement>) => {
-      const dataSrc = event.currentTarget.getAttribute("data-src");
+      const dataSrc = event.currentTarget.getAttribute('data-src');
       if (!dataSrc) return;
 
       // Load Bokun script only when user clicks
@@ -62,14 +62,14 @@ const AttractionProperties = ({
       // Initialize social share after modal opens
       setTimeout(() => {
         const widgetContainer = document.getElementById(
-          "bokun-modal-container"
+          'bokun-modal-container'
         );
         if (widgetContainer && dataSrc) {
-          const socialDiv = document.createElement("div");
-          socialDiv.className = "socialurl";
+          const socialDiv = document.createElement('div');
+          socialDiv.className = 'socialurl';
           widgetContainer.appendChild(socialDiv);
 
-          const root = document.createElement("div");
+          const root = document.createElement('div');
           socialDiv.appendChild(root);
 
           createRoot(root).render(
@@ -85,12 +85,12 @@ const AttractionProperties = ({
 
   const getBadgeClasses = useCallback((tagName: string) => {
     const baseClasses =
-      "py-5 px-15 relative rounded-right-4 text-12 lh-16 fw-500 uppercase";
+      'py-5 px-15 relative rounded-right-4 text-12 lh-16 fw-500 uppercase';
     const specialCases = {
-      "Big Sale": "bg-dark-1 text-white",
-      "Top Selling Tours": "bg-blue-1 text-white",
-      "top rated": "bg-yellow-1 text-dark-1",
-      default: "bg-pink-1 text-white",
+      'Big Sale': 'bg-dark-1 text-white',
+      'Top Selling Tours': 'bg-blue-1 text-white',
+      'top rated': 'bg-yellow-1 text-dark-1',
+      default: 'bg-pink-1 text-white',
     };
 
     const match = Object.entries(specialCases).find(([key]) =>
@@ -117,7 +117,7 @@ const AttractionProperties = ({
         >
           <div
             className="tourCard__image"
-            style={{ position: "relative", overflow: "visible" }}
+            style={{ position: 'relative', overflow: 'visible' }}
           >
             <div className="cardImage ratio ratio-2:1">
               <div className="cardImage__content">
@@ -133,11 +133,11 @@ const AttractionProperties = ({
                         <Image
                           width={300}
                           height={300}
-                          src={slide.imageUrl || "/img/placeholder-img.webp"}
+                          src={slide.imageUrl || '/img/placeholder-img.webp'}
                           alt={`${item.attractionTitle} - Image ${i + 1}`}
                           className="rounded-4 col-12 js-lazy"
                           priority={i === 0}
-                          loading={i === 0 ? "eager" : "lazy"}
+                          loading={i === 0 ? 'eager' : 'lazy'}
                         />
                       </SwiperSlide>
                     ))}
@@ -148,9 +148,12 @@ const AttractionProperties = ({
 
             <div
               className="cardImage__wishlist"
-              style={{ position: "absolute", top: "10px", right: "10px" }}
+              style={{ position: 'absolute', top: '10px', right: '10px' }}
             >
-              <button className="button -blue-1 bg-white size-30 rounded-full shadow-2">
+              <button
+                aria-label="Wishlist"
+                className="button -blue-1 bg-white size-30 rounded-full shadow-2"
+              >
                 <i className="icon-heart text-12" />
               </button>
             </div>
@@ -158,7 +161,7 @@ const AttractionProperties = ({
             {item?.tag?.name && (
               <div
                 className="cardImage__leftBadge"
-                style={{ position: "absolute", top: "6px", left: "-8px" }}
+                style={{ position: 'absolute', top: '6px', left: '-8px' }}
               >
                 <div className={getBadgeClasses(item.tag.name)}>
                   {item.tag.name}
@@ -181,7 +184,7 @@ const AttractionProperties = ({
                 <div className="text-14 text-light-1">
                   From
                   <strong className="text-16 fw-500 text-dark-1">
-                    {" "}
+                    {' '}
                     {item?.currency} {item?.price}
                   </strong>
                 </div>

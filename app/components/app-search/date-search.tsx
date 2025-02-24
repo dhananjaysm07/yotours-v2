@@ -31,6 +31,7 @@ const DateSearch: React.FC<DateSearchProps> = ({
   return (
     <div className="text-15 text-light-1 ls-2 lh-16 custom_dual_datepicker">
       <DatePicker
+        {...{ 'aria-label': 'Tour Date Picker' }}
         inputClass="custom_input-picker"
         containerClassName="custom_container-picker"
         onChange={handleDateChange}

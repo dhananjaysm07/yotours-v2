@@ -63,6 +63,7 @@ const Header = () => {
                   <button
                     className="d-flex items-center icon-menu text-inherit text-20"
                     data-bs-toggle="offcanvas"
+                    aria-label="Toggle navigation"
                     aria-controls="mobile-sidebar_menu"
                     data-bs-target="#mobile-sidebar_menu"
                   />
