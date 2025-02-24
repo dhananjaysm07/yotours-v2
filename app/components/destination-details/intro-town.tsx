@@ -32,7 +32,11 @@ export default function IntroTown({ introduction }: IntroTownProps) {
         {parse(extractFirstParagraphs(introduction))}
       </div>
       {truncated && (
-        <button className="readtxt" onClick={handleReadMoreClick}>
+        <button
+          className="readtxt"
+          onClick={handleReadMoreClick}
+          aria-label="Read Text Less/More Control"
+        >
           {showFullText ? 'Read Less' : 'Read More'}
         </button>
       )}

@@ -73,6 +73,7 @@ const SignUpForm = () => {
       <div className="col-12">
         <button
           type="submit"
+          aria-label="Sign Up"
           className="button py-20 -dark-1 bg-blue-1 text-white w-100"
         >
           Sign Up <div className="icon-arrow-top-right ml-15" />

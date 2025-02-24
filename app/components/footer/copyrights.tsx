@@ -17,7 +17,10 @@ const Copyright = () => {
         <div className="row y-gap-10 items-center">
           <div className="col-auto">
             <div className="d-flex items-center">
-              <button className="d-flex items-center text-14 fw-500 text-dark-1 mr-10">
+              <button
+                className="d-flex items-center text-14 fw-500 text-dark-1 mr-10"
+                aria-label="Language"
+              >
                 <i className="icon-globe text-16 mr-10" />
                 <span className="underline">English (US)</span>
               </button>

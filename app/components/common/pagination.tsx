@@ -22,7 +22,7 @@ const Pagination: React.FC<PaginationProps> = ({ totalPage, currentPage }) => {
   const getPageNumbers = () => {
     const delta = 2; // Number of pages to show on each side of current page
     const range: (number | string)[] = [];
-    
+
     for (let i = 1; i <= totalPage; i++) {
       if (
         i === 1 || // First page
@@ -30,11 +30,14 @@ const Pagination: React.FC<PaginationProps> = ({ totalPage, currentPage }) => {
         (i >= currentPage - delta && i <= currentPage + delta) // Pages around current
       ) {
         range.push(i);
-      } else if (i === currentPage - delta - 1 || i === currentPage + delta + 1) {
+      } else if (
+        i === currentPage - delta - 1 ||
+        i === currentPage + delta + 1
+      ) {
         range.push('...');
       }
     }
-    
+
     return range;
   };
 
@@ -72,6 +75,7 @@ const Pagination: React.FC<PaginationProps> = ({ totalPage, currentPage }) => {
             aria-disabled={currentPage === 1}
           >
             <button
+              aria-label="Previous"
               className="button -blue-1 size-40 rounded-full border-light"
               disabled={currentPage === 1}
             >
@@ -103,6 +107,7 @@ const Pagination: React.FC<PaginationProps> = ({ totalPage, currentPage }) => {
             aria-disabled={currentPage === totalPage}
           >
             <button
+              aria-label="Next"
               className="button -blue-1 size-40 rounded-full border-light"
               disabled={currentPage === totalPage}
             >

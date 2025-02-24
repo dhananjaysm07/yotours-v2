@@ -87,7 +87,10 @@ export default function Things({ things }: ThingsProps) {
       </Swiper>
       <div className="d-flex x-gap-15 items-center justify-center pt-0 sm:pt-20">
         <div className="col-auto">
-          <button className="d-flex items-center text-24 arrow-left-hover js-populars-tour-prev">
+          <button
+            className="d-flex items-center text-24 arrow-left-hover js-populars-tour-prev"
+            aria-label="Previous Slide"
+          >
             <i className="icon icon-arrow-left" />
           </button>
         </div>
@@ -95,7 +98,10 @@ export default function Things({ things }: ThingsProps) {
           <div className="pagination -dots text-border js-tour-pag_active" />
         </div>
         <div className="col-auto">
-          <button className="d-flex items-center text-24 arrow-right-hover js-populars-tour-next">
+          <button
+            className="d-flex items-center text-24 arrow-right-hover js-populars-tour-next"
+            aria-label="Next Slide"
+          >
             <i className="icon icon-arrow-right" />
           </button>
         </div>

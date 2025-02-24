@@ -85,7 +85,10 @@ const DestinationCarousel: React.FC<DestinationCarouselProps> = ({
                   <h4 className="text-26 md:text-20 lh-13 text-white mb-20">
                     {item.destinationName}
                   </h4>
-                  <button className="button col-12 h-60 -pink-1 bg-white text-dark-1">
+                  <button
+                    aria-label="Discover"
+                    className="button col-12 h-60 -pink-1 bg-white text-dark-1"
+                  >
                     Discover
                   </button>
                 </div>

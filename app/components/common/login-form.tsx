@@ -40,6 +40,7 @@ const LoginForm = () => {
       <div className="col-12">
         <button
           type="submit"
+          aria-label="Sign in"
           className="button py-20 -dark-1 bg-blue-1 text-white w-100"
         >
           Sign In <div className="icon-arrow-top-right ml-15" />

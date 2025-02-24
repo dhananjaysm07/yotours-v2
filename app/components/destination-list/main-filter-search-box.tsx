@@ -44,6 +44,7 @@ const MainFilterSearchBox: React.FC<MainFilterSearchBoxProps> = ({
         <div className="button-item h-full">
           <button
             className="button -dark-1 py-15 px-40 h-full col-12 rounded-0 bg-pink-1 text-white"
+            aria-label="Search"
             onClick={handleSearch}
           >
             <i className="icon-search text-20 mr-10" />

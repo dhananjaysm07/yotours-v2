@@ -41,7 +41,7 @@ const SocialShareLink = ({ bokunWidgetUrl }: { bokunWidgetUrl: string }) => {
       <Link href={whatsappShareUrl} target="_blank" rel="noopener noreferrer">
         <FaWhatsapp />
       </Link>
-      <button onClick={copyToClipboard}>
+      <button onClick={copyToClipboard} aria-label="Copy To Clipboard">
         <FaCopy />
         {copySuccess ? <span>Link Copied!</span> : <span>Copy Link</span>}
       </button>

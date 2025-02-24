@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import React, { useState, useCallback, lazy, Suspense } from "react";
-import Image from "next/image";
-import Slider from "react-slick";
-import { createRoot } from "react-dom/client";
-import { Tour } from "@/types";
+import React, { useState, useCallback, lazy, Suspense } from 'react';
+import Image from 'next/image';
+import Slider from 'react-slick';
+import { createRoot } from 'react-dom/client';
+import { Tour } from '@/types';
 
 // Lazy load the social share component
-const SocialShareLink = lazy(() => import("../common/social-share-link"));
+const SocialShareLink = lazy(() => import('../common/social-share-link'));
 
 interface ToursProps {
   tours: Tour[];
@@ -19,14 +19,14 @@ interface ToursProps {
 }
 
 // Memoized Arrow component
-const Arrow = React.memo(({ type }: { type: "next" | "prev" }) => {
+const Arrow = React.memo(({ type }: { type: 'next' | 'prev' }) => {
   const baseClasses =
-    "slick_arrow-between slick_arrow arrow-md flex-center button -blue-1 bg-white shadow-1 size-30 rounded-full sm:d-none";
+    'slick_arrow-between slick_arrow arrow-md flex-center button -blue-1 bg-white shadow-1 size-30 rounded-full sm:d-none';
   const className = `${baseClasses} -${type} js-${type} arrow`;
 
   return (
-    <button className={className}>
-      {type === "next" ? (
+    <button className={className} aria-label={`Arrow Controls ${type}`}>
+      {type === 'next' ? (
         <i className="icon icon-chevron-right text-12" />
       ) : (
         <span className="icon icon-chevron-left text-12" />
@@ -35,7 +35,7 @@ const Arrow = React.memo(({ type }: { type: "next" | "prev" }) => {
   );
 });
 
-Arrow.displayName = "Arrow";
+Arrow.displayName = 'Arrow';
 
 const Tours = ({ tours, contentData }: ToursProps) => {
   const [visibleTours, setVisibleTours] = useState(8);
@@ -45,8 +45,8 @@ const Tours = ({ tours, contentData }: ToursProps) => {
   const loadBokunScript = useCallback(async (bokunChannelId: string) => {
     if (!document.querySelector('script[src*="bokun.io"]')) {
       return new Promise((resolve) => {
-        const script = document.createElement("script");
-        script.type = "text/javascript";
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
         script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelId}`;
         script.async = true;
         script.onload = resolve;
@@ -58,7 +58,7 @@ const Tours = ({ tours, contentData }: ToursProps) => {
   // Handle Bokun button click
   const handleBokunButtonClick = useCallback(
     async (event: React.MouseEvent<HTMLDivElement>) => {
-      const dataSrc = event.currentTarget.getAttribute("data-src");
+      const dataSrc = event.currentTarget.getAttribute('data-src');
       if (!dataSrc || !contentData?.getContent.bokunChannelId) return;
       await loadBokunScript(contentData.getContent.bokunChannelId);
 
@@ -70,19 +70,19 @@ const Tours = ({ tours, contentData }: ToursProps) => {
       // Initialize social share after modal opens
       setTimeout(() => {
         const widgetContainer = document.getElementById(
-          "bokun-modal-container"
+          'bokun-modal-container'
         );
         if (widgetContainer && dataSrc) {
-          const existingSocialDiv = widgetContainer.querySelector(".socialurl");
+          const existingSocialDiv = widgetContainer.querySelector('.socialurl');
           if (existingSocialDiv) {
             widgetContainer.removeChild(existingSocialDiv);
           }
 
-          const socialDiv = document.createElement("div");
-          socialDiv.className = "socialurl";
+          const socialDiv = document.createElement('div');
+          socialDiv.className = 'socialurl';
           widgetContainer.appendChild(socialDiv);
 
-          const root = document.createElement("div");
+          const root = document.createElement('div');
           socialDiv.appendChild(root);
 
           createRoot(root).render(
@@ -108,16 +108,16 @@ const Tours = ({ tours, contentData }: ToursProps) => {
   // Memoized tag class name function
   const getTagClassName = useCallback((tagName?: string) => {
     const baseClasses =
-      "py-5 px-15 rounded-right-4 text-12 lh-16 fw-500 uppercase";
+      'py-5 px-15 rounded-right-4 text-12 lh-16 fw-500 uppercase';
 
     if (!tagName) return `${baseClasses} bg-blue-1 text-white`;
 
     const specialCases = {
-      trending: "bg-dark-1 text-white",
-      "best seller": "bg-blue-1 text-white",
-      "most popular": "bg-blue-1 text-white",
-      sale: "bg-yellow-1 text-white",
-      default: "bg-pink-1 text-white",
+      trending: 'bg-dark-1 text-white',
+      'best seller': 'bg-blue-1 text-white',
+      'most popular': 'bg-blue-1 text-white',
+      sale: 'bg-yellow-1 text-white',
+      default: 'bg-pink-1 text-white',
     };
 
     const match = Object.entries(specialCases).find(([key]) =>
@@ -167,7 +167,7 @@ const Tours = ({ tours, contentData }: ToursProps) => {
         >
           <div
             className="bokunButton tourCard -type-1 rounded-4 hover-inside-slider"
-            style={{ cursor: "pointer" }}
+            style={{ cursor: 'pointer' }}
             data-src={`https://widgets.bokun.io/online-sales/${contentData?.getContent.bokunChannelId}/experience/${tour.tourBokunId}?partialView=1`}
             onClick={handleBokunButtonClick}
           >
@@ -184,11 +184,11 @@ const Tours = ({ tours, contentData }: ToursProps) => {
                           width={300}
                           height={300}
                           className="col-12 js-lazy"
-                          src={slide.imageUrl || "/img/default-tour.jpg"}
+                          src={slide.imageUrl || '/img/default-tour.jpg'}
                           alt={tour.tourTitle}
-                          style={{ objectFit: "cover" }}
+                          style={{ objectFit: 'cover' }}
                           priority={i === 0 && index < 4}
-                          loading={i === 0 && index < 4 ? "eager" : "lazy"}
+                          loading={i === 0 && index < 4 ? 'eager' : 'lazy'}
                         />
                       </div>
                     </div>
@@ -217,8 +217,8 @@ const Tours = ({ tours, contentData }: ToursProps) => {
                     <div className="text-14 text-light-1">
                       From
                       <span className="text-16 fw-500 text-dark-1">
-                        {" "}
-                        {tour.currency || "US$"} {tour.price}
+                        {' '}
+                        {tour.currency || 'US$'} {tour.price}
                       </span>
                     </div>
                   </div>
@@ -232,11 +232,12 @@ const Tours = ({ tours, contentData }: ToursProps) => {
       {activeTours.length > visibleTours && (
         <div className="col-12 text-center mt-30">
           <button
+            aria-label="Load More"
             className="button -md -blue-1 bg-blue-1-05 text-blue-1"
             onClick={handleLoadMore}
             disabled={loading}
           >
-            {loading ? "Loading..." : "Show More"}
+            {loading ? 'Loading...' : 'Show More'}
           </button>
         </div>
       )}

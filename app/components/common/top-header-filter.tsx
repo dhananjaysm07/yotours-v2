@@ -30,6 +30,7 @@ const TopHeaderFilter: React.FC<TopHeaderFilterProps> = ({
                 data-bs-toggle="offcanvas"
                 data-bs-target="#listingSidebar"
                 className="button -blue-1 h-40 px-20 rounded-100 bg-blue-1-05 text-15 text-blue-1"
+                aria-label="Filter"
               >
                 <i className="icon-up-down text-14 mr-10" />
                 Filter

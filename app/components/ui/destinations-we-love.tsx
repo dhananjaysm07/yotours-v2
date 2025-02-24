@@ -50,6 +50,7 @@ const DestinationsWeLove: React.FC<DestinationsWeLoveProps> = ({
         {filterOptions.map((option) => (
           <div key={option.value}>
             <button
+              aria-label={option.label}
               className={`tabs__button fw-500 text-15 px-30 py-15 rounded-4 js-tabs-button ${
                 filterOption === option.value ? 'is-tab-el-active' : ''
               }`}

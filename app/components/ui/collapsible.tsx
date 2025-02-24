@@ -19,6 +19,7 @@ export const Collapsible = ({
   return (
     <div className="border-t border-gray-200 py-4">
       <button
+        aria-label="Expand/Collapse"
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex justify-between items-center text-xl font-medium"
       >

@@ -79,6 +79,7 @@ const ContactForm = () => {
       </div>
       <button
         type="submit"
+        aria-label="Send Message"
         className="w-full py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700"
       >
         Send Message

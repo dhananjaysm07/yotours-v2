@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
-import "swiper/css/pagination";
-import { Pagination } from "swiper/modules";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import { Pagination } from 'swiper/modules';
 
 const catContent = [
-  { id: 1, icon: "icon-destination", catName: "Tour" },
-  { id: 2, icon: "icon-ski", catName: "Attraction Tickets" },
-  { id: 3, icon: "icon-car", catName: "Car" },
+  { id: 1, icon: 'icon-destination', catName: 'Tour' },
+  { id: 2, icon: 'icon-ski', catName: 'Attraction Tickets' },
+  { id: 3, icon: 'icon-car', catName: 'Car' },
 ];
 
 export default function Categories() {
@@ -18,7 +18,7 @@ export default function Categories() {
         <Swiper
           slidesPerView={3}
           spaceBetween={20}
-          pagination={{ clickable: true, el: ".custom-pagination" }}
+          pagination={{ clickable: true, el: '.custom-pagination' }}
           modules={[Pagination]}
           breakpoints={{
             320: { slidesPerView: 1 },
@@ -31,7 +31,10 @@ export default function Categories() {
           {catContent.map((item) => (
             <SwiperSlide key={item.id}>
               <div className="col">
-                <button className="d-flex flex-column justify-content-center px-3 py-3 rounded-4 border-light text-16 lh-14 fw-500 w-100">
+                <button
+                  className="d-flex flex-column justify-content-center px-3 py-3 rounded-4 border-light text-16 lh-14 fw-500 w-100"
+                  aria-label={item.catName}
+                >
                   <i className={`${item.icon} text-25 mb-2`} />
                   {item.catName}
                 </button>

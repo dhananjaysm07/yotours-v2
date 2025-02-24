@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useCallback, lazy, Suspense } from "react";
-import Image from "next/image";
-import Slider from "react-slick";
-import { createRoot } from "react-dom/client";
-import { Attraction, ContentData } from "@/types";
-import { motion } from "framer-motion";
+import { useCallback, lazy, Suspense } from 'react';
+import Image from 'next/image';
+import Slider from 'react-slick';
+import { createRoot } from 'react-dom/client';
+import { Attraction, ContentData } from '@/types';
+import { motion } from 'framer-motion';
 
 // Lazy load the social share component
-const SocialShareLink = lazy(() => import("./social-share-link"));
+const SocialShareLink = lazy(() => import('./social-share-link'));
 
 interface ActivityProps {
   contentData: ContentData;
@@ -16,7 +16,7 @@ interface ActivityProps {
 }
 
 interface ArrowProps {
-  type: "next" | "prev";
+  type: 'next' | 'prev';
   onClick?: () => void;
 }
 
@@ -25,8 +25,12 @@ const Arrow = ({ type, onClick }: ArrowProps) => {
   const className = `slick_arrow-between slick_arrow -${type} arrow-md flex-center button -blue-1 bg-white shadow-1 size-30 rounded-full sm:d-none js-${type} arrow`;
 
   return (
-    <button className={className} onClick={onClick}>
-      {type === "next" ? (
+    <button
+      className={className}
+      onClick={onClick}
+      aria-label={`Arrow Controls ${type}`}
+    >
+      {type === 'next' ? (
         <i className="icon icon-chevron-right text-12" />
       ) : (
         <span className="icon icon-chevron-left text-12" />
@@ -40,8 +44,8 @@ const Activity = ({ contentData, attractions }: ActivityProps) => {
   const loadBokunScript = useCallback(async (bokunChannelId: string) => {
     if (!document.querySelector('script[src*="bokun.io"]')) {
       return new Promise((resolve) => {
-        const script = document.createElement("script");
-        script.type = "text/javascript";
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
         script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelId}`;
         script.async = true;
         script.onload = resolve;
@@ -53,7 +57,7 @@ const Activity = ({ contentData, attractions }: ActivityProps) => {
   // Handle Bokun button click with loading script
   const handleBokunButtonClick = useCallback(
     async (event: React.MouseEvent<HTMLDivElement>) => {
-      const dataSrc = event.currentTarget.getAttribute("data-src");
+      const dataSrc = event.currentTarget.getAttribute('data-src');
       if (!dataSrc || !contentData?.bokunChannelId) return;
 
       await loadBokunScript(contentData.bokunChannelId);
@@ -61,14 +65,14 @@ const Activity = ({ contentData, attractions }: ActivityProps) => {
       // Initialize social share after modal opens
       setTimeout(() => {
         const widgetContainer = document.getElementById(
-          "bokun-modal-container"
+          'bokun-modal-container'
         );
         if (widgetContainer && dataSrc) {
-          const socialDiv = document.createElement("div");
-          socialDiv.className = "socialurl";
+          const socialDiv = document.createElement('div');
+          socialDiv.className = 'socialurl';
           widgetContainer.appendChild(socialDiv);
 
-          const root = document.createElement("div");
+          const root = document.createElement('div');
           socialDiv.appendChild(root);
 
           createRoot(root).render(
@@ -84,16 +88,16 @@ const Activity = ({ contentData, attractions }: ActivityProps) => {
 
   // Memoized function to get tag class names
   const getTagClassName = useCallback((tagName: string | undefined): string => {
-    if (!tagName) return "";
+    if (!tagName) return '';
 
     const baseClasses =
-      "py-5 px-15 rounded-right-4 text-12 lh-16 fw-500 uppercase";
+      'py-5 px-15 rounded-right-4 text-12 lh-16 fw-500 uppercase';
     const specialCases = {
-      trending: "bg-dark-1 text-white",
-      "best seller": "bg-blue-1 text-white",
-      "most popular tours": "bg-blue-1 text-white",
-      sale: "bg-yellow-1 text-white",
-      default: "bg-pink-1 text-white",
+      trending: 'bg-dark-1 text-white',
+      'best seller': 'bg-blue-1 text-white',
+      'most popular tours': 'bg-blue-1 text-white',
+      sale: 'bg-yellow-1 text-white',
+      default: 'bg-pink-1 text-white',
     };
 
     const match = Object.entries(specialCases).find(([key]) =>
@@ -128,11 +132,11 @@ const Activity = ({ contentData, attractions }: ActivityProps) => {
             key={item.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1, duration: 0.6, ease: "easeOut" }}
+            transition={{ delay: index * 0.1, duration: 0.6, ease: 'easeOut' }}
           >
             <div
               className="bokunButton tourCard -type-1 rounded-4 hover-inside-slider"
-              style={{ cursor: "pointer" }}
+              style={{ cursor: 'pointer' }}
               data-src={`https://widgets.bokun.io/online-sales/${contentData?.bokunChannelId}/experience/${item.attractionBokunId}?partialView=1`}
               onClick={handleBokunButtonClick}
             >
@@ -146,10 +150,10 @@ const Activity = ({ contentData, attractions }: ActivityProps) => {
                             width={300}
                             height={300}
                             className="col-12 js-lazy"
-                            src={slide.imageUrl || "/img/placeholder-img.webp"}
+                            src={slide.imageUrl || '/img/placeholder-img.webp'}
                             alt={`${item.attractionTitle} - Image ${i + 1}`}
                             priority={i === 0}
-                            loading={i === 0 ? "eager" : "lazy"}
+                            loading={i === 0 ? 'eager' : 'lazy'}
                           />
                         </div>
                       </div>
@@ -178,9 +182,9 @@ const Activity = ({ contentData, attractions }: ActivityProps) => {
                   <div className="row justify-between items-center pt-10">
                     <div className="col-auto">
                       <div className="text-14 text-light-1">
-                        From{" "}
+                        From{' '}
                         <span className="text-16 fw-500 text-dark-1">
-                          {item.currency || "US$"} {item.price}
+                          {item.currency || 'US$'} {item.price}
                         </span>
                       </div>
                     </div>
