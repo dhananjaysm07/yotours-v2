@@ -1,25 +1,29 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback, lazy, Suspense } from "react";
 import Image from "next/image";
 import Slider from "react-slick";
 import { createRoot } from "react-dom/client";
-import SocialShareLink from "../common/social-share-link";
+
+// Lazy load the social share component
+const SocialShareLink = lazy(() => import("../common/social-share-link"));
+
+interface ActivityItem {
+  id: string;
+  carTitle?: string;
+  attractionTitle?: string;
+  images: { id: string; imageUrl: string }[];
+  location: string;
+  price: number | null;
+  currency: string | null;
+  tag: { name: string } | null;
+  carBokunId?: string;
+  attractionBokunId?: string;
+  __typename: "Car" | "Attraction";
+}
 
 interface ActivityCarProps {
-  attractions: {
-    id: string;
-    carTitle?: string; // For Car type
-    attractionTitle?: string; // For Attraction type
-    images: { id: string; imageUrl: string }[];
-    location: string;
-    price: number | null;
-    currency: string | null;
-    tag: { name: string } | null;
-    carBokunId?: string; // For Car type
-    attractionBokunId?: string; // For Attraction type
-    __typename: "Car" | "Attraction";
-  }[];
+  attractions: ActivityItem[];
   contentData: {
     getContent: {
       bokunChannelId: string;
@@ -28,229 +32,207 @@ interface ActivityCarProps {
   type: "Attractions" | "Cars";
 }
 
-function Arrow(props: { type: "next" | "prev" }) {
-  const className =
-    props.type === "next"
-      ? "slick_arrow-between slick_arrow -next arrow-md flex-center button -blue-1 bg-white shadow-1 size-30 rounded-full sm:d-none js-next"
-      : "slick_arrow-between slick_arrow -prev arrow-md flex-center button -blue-1 bg-white shadow-1 size-30 rounded-full sm:d-none js-prev";
+// Memoized Arrow component
+const Arrow = React.memo(({ type }: { type: "next" | "prev" }) => {
+  const baseClasses =
+    "slick_arrow-between slick_arrow arrow-md flex-center button -blue-1 bg-white shadow-1 size-30 rounded-full sm:d-none";
+  const className = `${baseClasses} -${type} js-${type} arrow`;
 
-  const char =
-    props.type === "next" ? (
-      <i className="icon icon-chevron-right text-12"></i>
-    ) : (
-      <span className="icon icon-chevron-left text-12"></span>
-    );
+  return (
+    <button className={className}>
+      {type === "next" ? (
+        <i className="icon icon-chevron-right text-12" />
+      ) : (
+        <span className="icon icon-chevron-left text-12" />
+      )}
+    </button>
+  );
+});
 
-  return <button className={`${className} arrow`}>{char}</button>;
-}
+Arrow.displayName = "Arrow";
 
-export default function ActivityCar({
-  attractions,
-  contentData,
-  type,
-}: ActivityCarProps) {
-  const [clickedDataSrc, setClickedDataSrc] = useState<string | null>(null);
-  const [scriptLoaded, setScriptLoaded] = useState(false);
-
-  // Load Bokun script only once
-  useEffect(() => {
-    const bokunChannelId = contentData?.getContent.bokunChannelId;
-    if (!bokunChannelId) {
-      console.error("Bokun Channel ID is not available.");
-      return;
+const ActivityCar = ({ attractions, contentData, type }: ActivityCarProps) => {
+  // Load Bokun script only when needed
+  const loadBokunScript = useCallback(async (bokunChannelId: string) => {
+    if (!document.querySelector('script[src*="bokun.io"]')) {
+      return new Promise((resolve) => {
+        const script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelId}`;
+        script.async = true;
+        script.onload = resolve;
+        document.body.appendChild(script);
+      });
     }
+  }, []);
 
-    const existingScript = document.querySelector('script[src*="bokun.io"]');
-    if (!existingScript && !scriptLoaded) {
-      const script = document.createElement("script");
-      script.type = "text/javascript";
-      script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelId}`;
-      script.async = true;
+  // Handle Bokun button click
+  const handleBokunButtonClick = useCallback(
+    async (event: React.MouseEvent<HTMLDivElement>) => {
+      const dataSrc = event.currentTarget.getAttribute("data-src");
+      if (!dataSrc || !contentData?.getContent.bokunChannelId) return;
+      await loadBokunScript(contentData.getContent.bokunChannelId);
 
-      script.onload = () => {
-        setScriptLoaded(true);
-      };
+      // Reset existing Bokun widgets
+      if (window.BokunWidgetLoader) {
+        window.BokunWidgetLoader.reset();
+      }
 
-      document.body.appendChild(script);
-
-      return () => {
-        document.body.removeChild(script);
-        setScriptLoaded(false);
-      };
-    } else {
-      setScriptLoaded(true);
-    }
-  }, [contentData?.getContent.bokunChannelId, scriptLoaded]);
-
-  // Handle widget container and social share
-  useEffect(() => {
-    if (scriptLoaded && clickedDataSrc) {
-      const initializeWidget = () => {
+      // Initialize social share after modal opens
+      setTimeout(() => {
         const widgetContainer = document.getElementById(
           "bokun-modal-container"
         );
         if (widgetContainer) {
-          // Remove existing social div if present
           const existingSocialDiv = widgetContainer.querySelector(".socialurl");
           if (existingSocialDiv) {
             widgetContainer.removeChild(existingSocialDiv);
           }
 
-          // Create new social div
           const socialDiv = document.createElement("div");
           socialDiv.className = "socialurl";
           widgetContainer.appendChild(socialDiv);
 
-          const socialLink = (
-            <SocialShareLink bokunWidgetUrl={clickedDataSrc} />
+          const root = document.createElement("div");
+          socialDiv.appendChild(root);
+
+          createRoot(root).render(
+            <Suspense fallback={<div>Loading...</div>}>
+              <SocialShareLink bokunWidgetUrl={dataSrc} />
+            </Suspense>
           );
-
-          if (socialLink.props.bokunWidgetUrl) {
-            createRoot(socialDiv).render(socialLink);
-          }
         }
-      };
-
-      // Give the widget time to mount
-      const timer = setTimeout(initializeWidget, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [clickedDataSrc, scriptLoaded]);
-
-  const handleBokunButtonClick = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      const dataSrc = event.currentTarget.getAttribute("data-src");
-      if (dataSrc) {
-        setClickedDataSrc(dataSrc);
-
-        // Reset any existing Bokun widgets
-        if (window.BokunWidgetLoader) {
-          window.BokunWidgetLoader.reset();
-        }
-      }
+      }, 1000);
     },
+    [contentData?.getContent.bokunChannelId, loadBokunScript]
+  );
+
+  // Memoized tag class name function
+  const getTagClassName = useCallback((tagName?: string) => {
+    const baseClasses =
+      "py-5 px-15 rounded-right-4 text-12 lh-16 fw-500 uppercase";
+
+    if (!tagName) return `${baseClasses} bg-blue-1 text-white`;
+
+    const specialCases = {
+      trending: "bg-dark-1 text-white",
+      "best seller": "bg-blue-1 text-white",
+      "most popular": "bg-blue-1 text-white",
+      sale: "bg-yellow-1 text-white",
+      default: "bg-pink-1 text-white",
+    };
+
+    const match = Object.entries(specialCases).find(([key]) =>
+      tagName.toLowerCase().includes(key)
+    );
+
+    return `${baseClasses} ${match ? match[1] : specialCases.default}`;
+  }, []);
+
+  // Memoized slider settings
+  const sliderSettings = React.useMemo(
+    () => ({
+      dots: true,
+      infinite: false,
+      speed: 500,
+      slidesToShow: 1,
+      slidesToScroll: 1,
+      arrows: true,
+      nextArrow: <Arrow type="next" />,
+      prevArrow: <Arrow type="prev" />,
+    }),
     []
   );
 
-  const sliderSettings = {
-    dots: true,
-    infinite: false,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    arrows: true,
-  };
-
-  const getTagClassName = (tagName?: string) => {
-    if (!tagName) return "bg-blue-1 text-white";
-
-    const lowerTagName = tagName.toLowerCase();
-    if (lowerTagName.includes("trending")) return "bg-dark-1 text-white";
-    if (
-      lowerTagName.includes("best seller") ||
-      lowerTagName.includes("most popular")
-    )
-      return "bg-blue-1 text-white";
-    if (lowerTagName.includes("sale")) return "bg-yellow-1 text-white";
-    return "bg-pink-1 text-white";
-  };
+  if (attractions.length === 0) {
+    return (
+      <div className="col-12 text-center">
+        <h2 className="text-22 fw-500">No {type} Available</h2>
+      </div>
+    );
+  }
 
   return (
     <div className="row y-gap-30 pt-10 sm:pt-20 item_gap-x30">
-      {attractions.length > 0 ? (
-        <>
-          {attractions.map((item) => (
-            <div
-              key={item.id}
-              className="col-xl-3 col-lg-4 col-sm-6"
-              data-aos="fade"
-              data-aos-delay="100"
-            >
-              <div
-                className="bokunButton tourCard -type-1 rounded-4 hover-inside-slider"
-                style={{ cursor: "pointer" }}
-                data-src={
-                  type === "Cars"
-                    ? `https://widgets.bokun.io/online-sales/${contentData?.getContent.bokunChannelId}/experience/${item.carBokunId}?partialView=1`
-                    : `https://widgets.bokun.io/online-sales/${contentData?.getContent.bokunChannelId}/experience/${item.attractionBokunId}?partialView=1`
-                }
-                onClick={handleBokunButtonClick}
-              >
-                <div className="tourCard__image position-relative">
-                  <div className="inside-slider">
-                    <Slider
-                      {...sliderSettings}
-                      arrows={true}
-                      nextArrow={<Arrow type="next" />}
-                      prevArrow={<Arrow type="prev" />}
-                    >
-                      {item.images?.map((slide, i) => (
-                        <div className="cardImage ratio ratio-1:1" key={i}>
-                          <div className="cardImage__content">
-                            <Image
-                              width={300}
-                              height={300}
-                              className="col-12 js-lazy"
-                              src={slide.imageUrl || "/img/default-tour.jpg"}
-                              alt={
-                                type === "Cars"
-                                  ? item.carTitle || "Car"
-                                  : item.attractionTitle || "Attraction"
-                              }
-                              style={{ objectFit: "cover" }}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </Slider>
-
-                    {item.tag && (
-                      <div className="cardImage__leftBadge">
-                        <div
-                          className={`py-5 px-15 rounded-right-4 text-12 lh-16 fw-500 uppercase ${getTagClassName(
-                            item.tag.name
-                          )}`}
-                        >
-                          {item.tag.name}
-                        </div>
+      {attractions.map((item, index) => (
+        <div
+          key={item.id}
+          className="col-xl-3 col-lg-4 col-sm-6"
+          data-aos="fade"
+          data-aos-delay={100 + index * 50}
+        >
+          <div
+            className="bokunButton tourCard -type-1 rounded-4 hover-inside-slider"
+            style={{ cursor: "pointer" }}
+            data-src={`https://widgets.bokun.io/online-sales/${
+              contentData?.getContent.bokunChannelId
+            }/experience/${
+              type === "Cars" ? item.carBokunId : item.attractionBokunId
+            }?partialView=1`}
+            onClick={handleBokunButtonClick}
+          >
+            <div className="tourCard__image position-relative">
+              <div className="inside-slider">
+                <Slider {...sliderSettings}>
+                  {item.images?.map((slide, i) => (
+                    <div className="cardImage ratio ratio-1:1" key={slide.id}>
+                      <div className="cardImage__content">
+                        <Image
+                          width={300}
+                          height={300}
+                          className="col-12 js-lazy"
+                          src={slide.imageUrl || "/img/default-tour.jpg"}
+                          alt={
+                            type === "Cars"
+                              ? item.carTitle || "Car"
+                              : item.attractionTitle || "Attraction"
+                          }
+                          style={{ objectFit: "cover" }}
+                          priority={i === 0}
+                          loading={i === 0 ? "eager" : "lazy"}
+                        />
                       </div>
-                    )}
-                  </div>
-                </div>
+                    </div>
+                  ))}
+                </Slider>
 
-                <div className="tourCard__content mt-10">
-                  <h4 className="tourCard__title text-dark-1 text-18 lh-16 fw-500">
-                    <span>
-                      {type === "Cars" ? item.carTitle : item.attractionTitle}
-                    </span>
-                  </h4>
-                  <p className="text-light-1 lh-14 text-14 mt-5">
-                    {item.location}
-                  </p>
-
-                  <div className="row justify-between items-center pt-15">
-                    {item.price && (
-                      <div className="col-auto">
-                        <div className="text-14 text-light-1">
-                          From
-                          <span className="text-16 fw-500 text-dark-1">
-                            {" "}
-                            {item.currency || "US$"} {item.price}
-                          </span>
-                        </div>
-                      </div>
-                    )}
+                {item.tag && (
+                  <div className="cardImage__leftBadge">
+                    <div className={getTagClassName(item.tag.name)}>
+                      {item.tag.name}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
-          ))}
-        </>
-      ) : (
-        <div className="col-12 text-center">
-          <h2 className="text-22 fw-500">No {type} Available</h2>
+
+            <div className="tourCard__content mt-10">
+              <h4 className="tourCard__title text-dark-1 text-18 lh-16 fw-500">
+                <span>
+                  {type === "Cars" ? item.carTitle : item.attractionTitle}
+                </span>
+              </h4>
+              <p className="text-light-1 lh-14 text-14 mt-5">{item.location}</p>
+
+              {item.price && (
+                <div className="row justify-between items-center pt-15">
+                  <div className="col-auto">
+                    <div className="text-14 text-light-1">
+                      From
+                      <span className="text-16 fw-500 text-dark-1">
+                        {" "}
+                        {item.currency || "US$"} {item.price}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      )}
+      ))}
     </div>
   );
-}
+};
+
+export default ActivityCar;
