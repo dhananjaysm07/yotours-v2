@@ -99,7 +99,6 @@ const HomePage = async () => {
 
   return (
     <>
-      <CookieConsentBar />
       <Header />
       <BsImport />
       <Hero contentData={getContent} destinations={destinations.data} />
@@ -157,6 +156,7 @@ const HomePage = async () => {
         </div>
       </section>
       <Footer />
+      <CookieConsentBar />
     </>
   );
 };

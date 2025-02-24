@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 768, 1024, 1280, 1600, 1920],
   },
   sassOptions: {
     silenceDeprecations: ['legacy-js-api'],
