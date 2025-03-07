@@ -3,10 +3,7 @@ import getPageMeta from '@/lib/get-page-meta';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
-import 'swiper/css/scrollbar';
-import 'swiper/css/effect-cards';
 import BsImport from './bs-import';
-
 import CookieConsentBar from '@/app/components/ui/cookie-consent';
 import Header from '@/app/components/common/header';
 import { constants } from '@/constants';
