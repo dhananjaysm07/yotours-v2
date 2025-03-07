@@ -1,21 +1,23 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { useHeroStore } from '@/lib/stores/hero-store';
-import LocationSearch from './location-search';
-import DateSearch from './date-search';
-import { GetDestinations } from '@/types';
-import { DateObject } from 'react-multi-date-picker';
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useHeroStore } from "@/lib/stores/hero-store";
+import LocationSearch from "./location-search";
+import DateSearch from "./date-search";
+import { GetDestinations } from "@/types";
+import { DateObject } from "react-multi-date-picker";
+import Link from "next/link";
+import { createSlug } from "@/utils/slugify";
 
 const AppSearch = ({ destinations }: { destinations: GetDestinations }) => {
   const router = useRouter();
   const defaultStartDate = new DateObject()
-    .subtract(12, 'days')
-    .format('YYYY-MM-DD');
-  const defaultEndDate = new DateObject().add(26, 'days').format('YYYY-MM-DD');
+    .subtract(12, "days")
+    .format("YYYY-MM-DD");
+  const defaultEndDate = new DateObject().add(26, "days").format("YYYY-MM-DD");
   const { tabs, currentTab, setCurrentTab } = useHeroStore();
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState("");
   const [selectedDestination, setSelectedDestination] = useState<{
     id: number;
     destinationName: string;
@@ -27,23 +29,23 @@ const AppSearch = ({ destinations }: { destinations: GetDestinations }) => {
     startDate: defaultStartDate,
     endDate: defaultEndDate,
   });
-  const handleSearch = () => {
-    const destinationQuery = selectedDestination
-      ? `?destinationName=${encodeURIComponent(
-          selectedDestination.destinationName
-        )}`
-      : '';
-    const datesQuery = selectedDates
-      ? `&startDate=${selectedDates.startDate}&endDate=${selectedDates.endDate}`
-      : '';
-    const query = `${destinationQuery}${datesQuery}`;
+  // const handleSearch = () => {
+  //   const destinationQuery = selectedDestination
+  //     ? `?destinationName=${encodeURIComponent(
+  //         selectedDestination.destinationName
+  //       )}`
+  //     : "";
+  //   const datesQuery = selectedDates
+  //     ? `&startDate=${selectedDates.startDate}&endDate=${selectedDates.endDate}`
+  //     : "";
+  //   const query = `${destinationQuery}${datesQuery}`;
 
-    if (currentTab.toLowerCase() === 'tour') {
-      router.push(`/search/tours${query}`);
-    } else {
-      router.push(`/search/attractions${query}`);
-    }
-  };
+  //   if (currentTab.toLowerCase() === "tour") {
+  //     router.push(`/search/tours${query}`);
+  //   } else {
+  //     router.push(`/search/attractions${query}`);
+  //   }
+  // };
 
   return (
     <>
@@ -52,7 +54,7 @@ const AppSearch = ({ destinations }: { destinations: GetDestinations }) => {
           <button
             key={tab?.id}
             className={`tabs__button text-15 fw-500 text-white pb-4 ${
-              tab?.name === currentTab ? 'is-tab-el-active' : ''
+              tab?.name === currentTab ? "is-tab-el-active" : ""
             }`}
             aria-label="Toggle Tabs/Attractions"
             onClick={() => setCurrentTab(tab?.name)}
@@ -81,13 +83,22 @@ const AppSearch = ({ destinations }: { destinations: GetDestinations }) => {
             </div>
 
             <div className="button-item">
-              <button
-                className="web-icon mainSearch__submit button -dark-1 h-60 px-35 col-12 rounded-100 bg-pink-1 text-white"
-                aria-label="Search"
-                onClick={handleSearch}
+              <Link
+                href={{
+                  pathname: `/destinations/${createSlug(
+                    selectedDestination?.destinationName || ""
+                  )}`,
+                  query: { city: selectedDestination?.destinationName },
+                }}
               >
-                Search
-              </button>
+                <button
+                  className="web-icon mainSearch__submit button -dark-1 h-60 px-35 col-12 rounded-100 bg-pink-1 text-white"
+                  aria-label="Search"
+                  // onClick={handleSearch}
+                >
+                  Search
+                </button>
+              </Link>
             </div>
           </div>
         </div>
