@@ -11,7 +11,7 @@ import Link from "next/link";
 import { createSlug } from "@/utils/slugify";
 
 const AppSearch = ({ destinations }: { destinations: GetDestinations }) => {
-  const router = useRouter();
+  // const router = useRouter();
   const defaultStartDate = new DateObject()
     .subtract(12, "days")
     .format("YYYY-MM-DD");
