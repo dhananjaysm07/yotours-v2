@@ -52,7 +52,7 @@ const ToursAndAttractions = ({
 }: //   isCountry,
 TourAndAttractionsProps) => {
   const [filterTab, setFilterTab] = useState(TAB_OPTIONS.TOUR);
-
+  console.log("Tours Data", tourData);
   return (
     <section className="layout-pt-sm layout-pb-sm">
       <div className="container">

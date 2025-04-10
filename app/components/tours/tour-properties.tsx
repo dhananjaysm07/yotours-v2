@@ -53,6 +53,8 @@ const TourProperties = ({ tours, bokunChannelId }: TourPropertiesProps) => {
     }
   }, [bokunChannelId]);
 
+  console.log("Tours Data", tours);
+
   const handleBokunButtonClick = useCallback(
     async (event: React.MouseEvent<HTMLDivElement>) => {
       const dataSrc = event.currentTarget.getAttribute("data-src");
