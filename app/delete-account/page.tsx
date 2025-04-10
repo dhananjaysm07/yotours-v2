@@ -39,6 +39,7 @@ export default function DeleteAccount() {
         setError(data.message || "Something went wrong");
       }
     } catch (err) {
+      console.log("Error:", err);
       setError("Failed to send OTP. Please try again.");
     } finally {
       setLoading(false);
