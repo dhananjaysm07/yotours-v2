@@ -57,7 +57,7 @@ const PriceSlider: React.FC<PriceSliderProps> = ({
 
   // Format price for display
   const formatPrice = (value: number) => {
-    return `${value.toLocaleString()}`;
+    return `${value.toLocaleString('en-US', { useGrouping: false })}`;
   };
 
   return (

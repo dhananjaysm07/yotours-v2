@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { useCallback, lazy, Suspense } from "react";
-import Image from "next/image";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-import { createRoot } from "react-dom/client";
+import { useEffect, useState, useCallback, lazy, Suspense } from 'react';
+import Image from 'next/image';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination } from 'swiper/modules';
+import { createRoot } from 'react-dom/client';
 
-// Lazy load the social share component
-const SocialShareLink = lazy(() => import("../common/social-share-link"));
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import BokunScriptLoader from '../common/bokun-loader';
 
-// Types remain the same
+const SocialShareLink = lazy(() => import('../common/social-share-link'));
+
 interface Tour {
   id: string;
   tourTitle: string;
@@ -30,99 +30,71 @@ interface TourPropertiesProps {
   bokunChannelId: string;
 }
 
-declare global {
-  interface Window {
-    BokunWidgetLoader?: {
-      reset: () => void;
-    };
-  }
-}
-
 const TourProperties = ({ tours, bokunChannelId }: TourPropertiesProps) => {
-  // Load Bokun script only when needed
-  const loadBokunScript = useCallback(async () => {
-    if (!document.querySelector('script[src*="bokun.io"]')) {
-      return new Promise((resolve) => {
-        const script = document.createElement("script");
-        script.type = "text/javascript";
-        script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelId}`;
-        script.async = true;
-        script.onload = resolve;
-        document.body.appendChild(script);
-      });
-    }
-  }, [bokunChannelId]);
+  const [isClient, setIsClient] = useState(false);
 
-  console.log("Tours Data", tours);
+  // Ensure client-side rendering only (avoids hydration errors)
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
-  const handleBokunButtonClick = useCallback(
-    async (event: React.MouseEvent<HTMLDivElement>) => {
-      const dataSrc = event.currentTarget.getAttribute("data-src");
+  const handleBokunClick = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      const dataSrc = event.currentTarget.getAttribute('data-src');
+      const widgetContainer = document.getElementById('bokun-modal-container');
 
-      // Load Bokun script only when user clicks
-      await loadBokunScript();
+      if (widgetContainer && dataSrc) {
+        const existing = widgetContainer.querySelector('.socialurl');
+        if (existing) widgetContainer.removeChild(existing);
 
-      // Reset any existing Bokun widgets
-      if (window.BokunWidgetLoader) {
-        window.BokunWidgetLoader.reset();
-      }
+        const socialDiv = document.createElement('div');
+        socialDiv.className = 'socialurl';
+        widgetContainer.appendChild(socialDiv);
 
-      // Initialize social share after modal opens
-      setTimeout(() => {
-        const widgetContainer = document.getElementById(
-          "bokun-modal-container"
+        const root = document.createElement('div');
+        socialDiv.appendChild(root);
+
+        createRoot(root).render(
+          <Suspense fallback={<div>Loading...</div>}>
+            <SocialShareLink bokunWidgetUrl={dataSrc} />
+          </Suspense>
         );
-        if (widgetContainer && dataSrc) {
-          const socialDiv = document.createElement("div");
-          socialDiv.className = "socialurl";
-          widgetContainer.appendChild(socialDiv);
-
-          const root = document.createElement("div");
-          socialDiv.appendChild(root);
-
-          createRoot(root).render(
-            <Suspense fallback={<div>Loading...</div>}>
-              <SocialShareLink bokunWidgetUrl={dataSrc} />
-            </Suspense>
-          );
-        }
-      }, 1000);
+      }
     },
-    [loadBokunScript]
+    []
   );
 
   const getBadgeClasses = useCallback((tagName: string) => {
-    const baseClasses =
-      "py-5 px-15 relative rounded-right-4 text-12 lh-16 fw-500 uppercase";
-    const specialCases = {
-      "Big Sale": "bg-dark-1 text-white",
-      "Top Selling Tours": "bg-blue-1 text-white",
-      "top rated": "bg-yellow-1 text-dark-1",
-      default: "bg-pink-1 text-white",
+    const base =
+      'py-5 px-15 relative rounded-right-4 text-12 lh-16 fw-500 uppercase';
+    const themes: Record<string, string> = {
+      'Big Sale': 'bg-dark-1 text-white',
+      'Top Selling Tours': 'bg-blue-1 text-white',
+      'top rated': 'bg-yellow-1 text-dark-1',
+      default: 'bg-pink-1 text-white',
     };
-
-    const match = Object.entries(specialCases).find(([key]) =>
-      tagName.toLowerCase().includes(key.toLowerCase())
+    const match = Object.entries(themes).find(([k]) =>
+      tagName.toLowerCase().includes(k.toLowerCase())
     );
-
-    return `${baseClasses} ${match ? match[1] : specialCases.default}`;
+    return `${base} ${match ? match[1] : themes.default}`;
   }, []);
+
+  if (!isClient) return null;
 
   return (
     <>
+      {/* Load Bokun Script Once */}
+      <BokunScriptLoader bokunChannelId={bokunChannelId} />
       {tours.map((tour, index) => (
         <div
           key={tour.id}
           className="bokunButton tourCard -type-1 rounded-4 hover-inside-slider col-lg-4 col-sm-6"
           data-aos="fade"
           data-aos-delay={(index + 1) * 100}
-          data-src={`https://widgets.bokun.io/online-sales/${bokunChannelId}/experience/${tour?.tourBokunId}?partialView=1`}
-          onClick={handleBokunButtonClick}
+          data-src={`https://widgets.bokun.io/online-sales/${bokunChannelId}/experience/${tour.tourBokunId}?partialView=1`}
+          onClick={handleBokunClick}
         >
-          <div
-            className="tourCard__image"
-            style={{ position: "relative", overflow: "visible" }}
-          >
+          <div className="tourCard__image" style={{ position: 'relative' }}>
             <div className="cardImage ratio ratio-2:1">
               <div className="cardImage__content">
                 <div className="cardImage-slider rounded-4 overflow-hidden custom_inside-slider">
@@ -132,16 +104,16 @@ const TourProperties = ({ tours, bokunChannelId }: TourPropertiesProps) => {
                     pagination={{ clickable: true }}
                     navigation
                   >
-                    {tour.images.map((image, idx) => (
-                      <SwiperSlide key={idx}>
+                    {tour.images.map((img, i) => (
+                      <SwiperSlide key={i}>
                         <Image
                           width={300}
                           height={300}
-                          src={image.imageUrl || "/img/placeholder-img.webp"}
-                          alt={`${tour.tourTitle} - Image ${idx + 1}`}
+                          src={img.imageUrl || '/img/placeholder-img.webp'}
+                          alt={`${tour.tourTitle} - Image ${i + 1}`}
                           className="rounded-4 col-12 js-lazy"
-                          priority={idx === 0}
-                          loading={idx === 0 ? "eager" : "lazy"}
+                          priority={i === 0}
+                          loading={i === 0 ? 'eager' : 'lazy'}
                         />
                       </SwiperSlide>
                     ))}
@@ -153,7 +125,7 @@ const TourProperties = ({ tours, bokunChannelId }: TourPropertiesProps) => {
             {tour.tag?.name && (
               <div
                 className="cardImage__leftBadge"
-                style={{ position: "absolute", top: "6px", left: "-8px" }}
+                style={{ position: 'absolute', top: '6px', left: '-8px' }}
               >
                 <div className={getBadgeClasses(tour.tag.name)}>
                   {tour.tag.name}
@@ -171,11 +143,10 @@ const TourProperties = ({ tours, bokunChannelId }: TourPropertiesProps) => {
               {tour.tourTitle}
             </h3>
             <p className="text-light-1 lh-14 text-14 mt-5">{tour.location}</p>
-
             <div className="row justify-between items-center pt-15">
               <div className="col-auto">
                 <span className="text-14 text-light-1">
-                  From{" "}
+                  From{' '}
                   <strong className="text-16 fw-500 text-dark-1">
                     {tour.currency} {tour.price}
                   </strong>

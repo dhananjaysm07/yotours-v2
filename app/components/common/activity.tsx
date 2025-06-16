@@ -6,6 +6,7 @@ import Slider from 'react-slick';
 import { createRoot } from 'react-dom/client';
 import { Attraction, ContentData } from '@/types';
 import { motion } from 'framer-motion';
+import BokunScriptLoader from './bokun-loader';
 
 // Lazy load the social share component
 const SocialShareLink = lazy(() => import('./social-share-link'));
@@ -40,50 +41,31 @@ const Arrow = ({ type, onClick }: ArrowProps) => {
 };
 
 const Activity = ({ contentData, attractions }: ActivityProps) => {
-  // Load Bokun script only when needed
-  const loadBokunScript = useCallback(async (bokunChannelId: string) => {
-    if (!document.querySelector('script[src*="bokun.io"]')) {
-      return new Promise((resolve) => {
-        const script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelId}`;
-        script.async = true;
-        script.onload = resolve;
-        document.body.appendChild(script);
-      });
-    }
-  }, []);
-
   // Handle Bokun button click with loading script
   const handleBokunButtonClick = useCallback(
-    async (event: React.MouseEvent<HTMLDivElement>) => {
+    (event: React.MouseEvent<HTMLDivElement>) => {
       const dataSrc = event.currentTarget.getAttribute('data-src');
-      if (!dataSrc || !contentData?.bokunChannelId) return;
+      const widgetContainer = document.getElementById('bokun-modal-container');
 
-      await loadBokunScript(contentData.bokunChannelId);
+      if (widgetContainer && dataSrc) {
+        const existing = widgetContainer.querySelector('.socialurl');
+        if (existing) widgetContainer.removeChild(existing);
 
-      // Initialize social share after modal opens
-      setTimeout(() => {
-        const widgetContainer = document.getElementById(
-          'bokun-modal-container'
+        const socialDiv = document.createElement('div');
+        socialDiv.className = 'socialurl';
+        widgetContainer.appendChild(socialDiv);
+
+        const root = document.createElement('div');
+        socialDiv.appendChild(root);
+
+        createRoot(root).render(
+          <Suspense fallback={<div>Loading...</div>}>
+            <SocialShareLink bokunWidgetUrl={dataSrc} />
+          </Suspense>
         );
-        if (widgetContainer && dataSrc) {
-          const socialDiv = document.createElement('div');
-          socialDiv.className = 'socialurl';
-          widgetContainer.appendChild(socialDiv);
-
-          const root = document.createElement('div');
-          socialDiv.appendChild(root);
-
-          createRoot(root).render(
-            <Suspense fallback={<div>Loading...</div>}>
-              <SocialShareLink bokunWidgetUrl={dataSrc} />
-            </Suspense>
-          );
-        }
-      }, 1000);
+      }
     },
-    [contentData?.bokunChannelId, loadBokunScript]
+    []
   );
 
   // Memoized function to get tag class names
@@ -125,6 +107,7 @@ const Activity = ({ contentData, attractions }: ActivityProps) => {
 
   return (
     <div className="relative overflow-hidden pt-40 sm:pt-20">
+      <BokunScriptLoader bokunChannelId={contentData.bokunChannelId || ''} />
       <div className="row y-gap-30">
         {activeAttractions.map((item, index) => (
           <motion.div

@@ -1,14 +1,16 @@
 'use client';
 
-import { useCallback, lazy, Suspense } from 'react';
+import { useEffect, useState, useCallback, lazy, Suspense } from 'react';
 import Image from 'next/image';
+
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
+import { createRoot } from 'react-dom/client';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { Attraction } from '@/types';
-import { createRoot } from 'react-dom/client';
+import BokunScriptLoader from '../common/bokun-loader';
 
 // Lazy load the social share component
 const SocialShareLink = lazy(() => import('../common/social-share-link'));
@@ -16,71 +18,43 @@ const SocialShareLink = lazy(() => import('../common/social-share-link'));
 interface AttractionPropertiesProps {
   attractions: Attraction[];
   bokunChannelId: string;
-  currentPage: number;
-  dataPerPage: number;
-}
-
-declare global {
-  interface Window {
-    BokunWidgetLoader?: {
-      reset: () => void;
-    };
-  }
 }
 
 const AttractionProperties = ({
   attractions,
   bokunChannelId,
 }: AttractionPropertiesProps) => {
-  // Load Bokun script only when needed
-  const loadBokunScript = useCallback(async () => {
-    if (!document.querySelector('script[src*="bokun.io"]')) {
-      return new Promise((resolve) => {
-        const script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelId}`;
-        script.async = true;
-        script.onload = resolve;
-        document.body.appendChild(script);
-      });
-    }
-  }, [bokunChannelId]);
+  const [isClient, setIsClient] = useState(false);
 
-  const handleBokunButtonClick = useCallback(
-    async (event: React.MouseEvent<HTMLDivElement>) => {
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const handleBokunClick = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
       const dataSrc = event.currentTarget.getAttribute('data-src');
       if (!dataSrc) return;
 
-      // Load Bokun script only when user clicks
-      await loadBokunScript();
+      const widgetContainer = document.getElementById('bokun-modal-container');
+      if (widgetContainer) {
+        const existing = widgetContainer.querySelector('.socialurl');
+        if (existing) widgetContainer.removeChild(existing);
 
-      // Reset any existing Bokun widgets
-      if (window.BokunWidgetLoader) {
-        window.BokunWidgetLoader.reset();
-      }
+        const socialDiv = document.createElement('div');
+        socialDiv.className = 'socialurl';
+        widgetContainer.appendChild(socialDiv);
 
-      // Initialize social share after modal opens
-      setTimeout(() => {
-        const widgetContainer = document.getElementById(
-          'bokun-modal-container'
+        const root = document.createElement('div');
+        socialDiv.appendChild(root);
+
+        createRoot(root).render(
+          <Suspense fallback={<div>Loading...</div>}>
+            <SocialShareLink bokunWidgetUrl={dataSrc} />
+          </Suspense>
         );
-        if (widgetContainer && dataSrc) {
-          const socialDiv = document.createElement('div');
-          socialDiv.className = 'socialurl';
-          widgetContainer.appendChild(socialDiv);
-
-          const root = document.createElement('div');
-          socialDiv.appendChild(root);
-
-          createRoot(root).render(
-            <Suspense fallback={<div>Loading...</div>}>
-              <SocialShareLink bokunWidgetUrl={dataSrc} />
-            </Suspense>
-          );
-        }
-      }, 1000);
+      }
     },
-    [loadBokunScript]
+    []
   );
 
   const getBadgeClasses = useCallback((tagName: string) => {
@@ -100,8 +74,12 @@ const AttractionProperties = ({
     return `${baseClasses} ${match ? match[1] : specialCases.default}`;
   }, []);
 
+  if (!isClient) return null;
+
   return (
     <>
+      <BokunScriptLoader bokunChannelId={bokunChannelId} />
+
       {attractions.map((item, index) => (
         <div
           key={item?.id}
@@ -113,7 +91,7 @@ const AttractionProperties = ({
               ? `https://widgets.bokun.io/online-sales/${bokunChannelId}/experience/${item.attractionBokunId}?partialView=1`
               : undefined
           }
-          onClick={handleBokunButtonClick}
+          onClick={handleBokunClick}
         >
           <div
             className="tourCard__image"

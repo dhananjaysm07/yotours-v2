@@ -121,8 +121,6 @@ export default async function AttractionsPage({
                 <AttractionProperties
                   attractions={attractions}
                   bokunChannelId={contentData.data.getContent.bokunChannelId}
-                  currentPage={currentPage}
-                  dataPerPage={dataPerPage}
                 />
               </div>
               <Pagination

@@ -49,6 +49,7 @@ declare global {
   interface Window {
     BokunWidgetLoader?: {
       reset: () => void;
+      loadWidgets: () => void;
     };
   }
 }
@@ -61,62 +62,31 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
   const uniqueId = data[0]?.id;
   const isTour = filter === TAB_OPTIONS.TOUR;
 
-  // Load Bokun script only when needed
-  const loadBokunScript = useCallback(async () => {
-    if (!bokunChannelID) {
-      console.error('Bokun Channel ID is not available.');
-      return;
-    }
-
-    if (!document.querySelector('script[src*="bokun.io"]')) {
-      return new Promise((resolve) => {
-        const script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelID}`;
-        script.async = true;
-        script.onload = resolve;
-        document.body.appendChild(script);
-      });
-    }
-  }, [bokunChannelID]);
-
   const handleBokunButtonClick = useCallback(
-    async (event: React.MouseEvent<HTMLDivElement>) => {
+    (event: React.MouseEvent<HTMLDivElement>) => {
       const dataSrc = event.currentTarget.getAttribute('data-src');
-      if (!dataSrc) return;
+      const widgetContainer = document.getElementById('bokun-modal-container');
 
-      // Load Bokun script only when user clicks
-      await loadBokunScript();
+      if (widgetContainer && dataSrc) {
+        const existing = widgetContainer.querySelector('.socialurl');
+        if (existing) widgetContainer.removeChild(existing);
 
-      // Reset any existing Bokun widgets
-      if (window.BokunWidgetLoader) {
-        window.BokunWidgetLoader.reset();
-      }
+        const socialDiv = document.createElement('div');
+        socialDiv.className = 'socialurl';
+        widgetContainer.appendChild(socialDiv);
 
-      // Initialize social share after modal opens
-      setTimeout(() => {
-        const widgetContainer = document.getElementById(
-          'bokun-modal-container'
+        const root = document.createElement('div');
+        socialDiv.appendChild(root);
+
+        createRoot(root).render(
+          <Suspense fallback={<div>Loading...</div>}>
+            <SocialShareLink bokunWidgetUrl={dataSrc} />
+          </Suspense>
         );
-        if (widgetContainer && dataSrc) {
-          const socialDiv = document.createElement('div');
-          socialDiv.className = 'socialurl';
-          widgetContainer.appendChild(socialDiv);
-
-          const root = document.createElement('div');
-          socialDiv.appendChild(root);
-
-          createRoot(root).render(
-            <Suspense fallback={<div>Loading...</div>}>
-              <SocialShareLink bokunWidgetUrl={dataSrc} />
-            </Suspense>
-          );
-        }
-      }, 1000);
+      }
     },
-    [loadBokunScript]
+    []
   );
-
   const getTagClassName = useCallback((tagName: string | undefined): string => {
     if (!tagName) return '';
 
@@ -152,7 +122,7 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
         }}
         onSwiper={(swiper) => {
           requestAnimationFrame(() => {
-            swiper.navigation.update();
+            swiper?.navigation?.update();
           });
         }}
       >

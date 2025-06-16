@@ -41,59 +41,30 @@ const Tours = ({ tours, contentData }: ToursProps) => {
   const [visibleTours, setVisibleTours] = useState(8);
   const [loading, setLoading] = useState(false);
 
-  // Load Bokun script only when needed
-  const loadBokunScript = useCallback(async (bokunChannelId: string) => {
-    if (!document.querySelector('script[src*="bokun.io"]')) {
-      return new Promise((resolve) => {
-        const script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = `https://widgets.bokun.io/assets/javascripts/apps/build/BokunWidgetsLoader.js?bookingChannelUUID=${bokunChannelId}`;
-        script.async = true;
-        script.onload = resolve;
-        document.body.appendChild(script);
-      });
-    }
-  }, []);
-
-  // Handle Bokun button click
   const handleBokunButtonClick = useCallback(
-    async (event: React.MouseEvent<HTMLDivElement>) => {
+    (event: React.MouseEvent<HTMLDivElement>) => {
       const dataSrc = event.currentTarget.getAttribute('data-src');
-      if (!dataSrc || !contentData?.getContent.bokunChannelId) return;
-      await loadBokunScript(contentData.getContent.bokunChannelId);
+      const widgetContainer = document.getElementById('bokun-modal-container');
 
-      // Reset existing Bokun widgets
-      if (window.BokunWidgetLoader) {
-        window.BokunWidgetLoader.reset();
-      }
+      if (widgetContainer && dataSrc) {
+        const existing = widgetContainer.querySelector('.socialurl');
+        if (existing) widgetContainer.removeChild(existing);
 
-      // Initialize social share after modal opens
-      setTimeout(() => {
-        const widgetContainer = document.getElementById(
-          'bokun-modal-container'
+        const socialDiv = document.createElement('div');
+        socialDiv.className = 'socialurl';
+        widgetContainer.appendChild(socialDiv);
+
+        const root = document.createElement('div');
+        socialDiv.appendChild(root);
+
+        createRoot(root).render(
+          <Suspense fallback={<div>Loading...</div>}>
+            <SocialShareLink bokunWidgetUrl={dataSrc} />
+          </Suspense>
         );
-        if (widgetContainer && dataSrc) {
-          const existingSocialDiv = widgetContainer.querySelector('.socialurl');
-          if (existingSocialDiv) {
-            widgetContainer.removeChild(existingSocialDiv);
-          }
-
-          const socialDiv = document.createElement('div');
-          socialDiv.className = 'socialurl';
-          widgetContainer.appendChild(socialDiv);
-
-          const root = document.createElement('div');
-          socialDiv.appendChild(root);
-
-          createRoot(root).render(
-            <Suspense fallback={<div>Loading...</div>}>
-              <SocialShareLink bokunWidgetUrl={dataSrc} />
-            </Suspense>
-          );
-        }
-      }, 1000);
+      }
     },
-    [contentData?.getContent.bokunChannelId, loadBokunScript]
+    []
   );
 
   // Handle load more functionality
