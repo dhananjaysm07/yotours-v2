@@ -19,6 +19,7 @@ import Categories from "@/app/components/destination-details/categories";
 import { SectionTitle } from "@/app/components/destination-details/section-title";
 import { ExpandableSection } from "@/app/components/destination-details/expandable-section";
 import { GET_CONTENT_QUERY } from "@/graphql/query";
+import { Attraction, Car, Tour } from "@/types";
 
 export const metadata = {
   title: "Destinations | Yo Tours",
@@ -145,7 +146,10 @@ export default async function DestinationPage({ searchParams }: PageProps) {
 
               <div className="row y-gap-30 pt-10 sm:pt-20 item_gap-x30 flex justify-center">
                 {tour.tours ? (
-                  <Tours tours={tour.tours} contentData={contentData} />
+                  <Tours
+                    tours={tour.tours.filter((tour: Tour) => tour.active)}
+                    contentData={contentData}
+                  />
                 ) : (
                   <h2 className="text-center">No Tours</h2>
                 )}
@@ -168,7 +172,9 @@ export default async function DestinationPage({ searchParams }: PageProps) {
 
                   <div className="row y-gap-30 pt-10 sm:pt-20 item_gap-x30 flex justify-center">
                     <ActivityCar
-                      attractions={attractionCar.attractions}
+                      attractions={attractionCar.attractions.filter(
+                        (item: Attraction) => item.active
+                      )}
                       contentData={contentData}
                       type={"Attractions"}
                     />
@@ -187,7 +193,9 @@ export default async function DestinationPage({ searchParams }: PageProps) {
 
                   <div className="row y-gap-30 pt-10 sm:pt-20 item_gap-x30 flex justify-center">
                     <ActivityCar
-                      attractions={attractionCar.cars}
+                      attractions={attractionCar.cars.filter(
+                        (item: Car) => item.active
+                      )}
                       type={"Cars"}
                       contentData={contentData}
                     />
