@@ -1,13 +1,13 @@
-import Footer from '@/app/components/footer';
-import InvertedHeader from '@/app/components/inverted-header';
-import { Metadata } from 'next';
-import getPageMeta from '@/lib/get-page-meta';
-import LoginForm from '@/app/components/common/login-form';
-import LoginWithSocial from '@/app/components/common/login-social';
+import Footer from "@/app/components/footer";
+import InvertedHeader from "@/app/components/inverted-header";
+import { Metadata } from "next";
+import getPageMeta from "@/lib/get-page-meta";
+import LoginForm from "@/app/components/common/login-form";
+import LoginWithSocial from "@/app/components/common/login-social";
 
 export const metadata: Metadata = getPageMeta(
-  'Login',
-  'Make your travel plans easier'
+  "Login",
+  "Make your travel plans easier"
 );
 
 const LogIn = () => {
@@ -23,7 +23,6 @@ const LogIn = () => {
             <div className="col-xl-6 col-lg-7 col-md-9">
               <div className="px-50 py-50 sm:px-20 sm:py-20 bg-white shadow-4 rounded-4">
                 <LoginForm />
-
                 <div className="row y-gap-20 pt-30">
                   <div className="col-12">
                     <div className="text-center">or sign in with</div>
