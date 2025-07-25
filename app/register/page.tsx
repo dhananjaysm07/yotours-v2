@@ -10,6 +10,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [error, setError] = useState("");
+  const [registrationComplete, setRegistrationComplete] = useState(false);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,7 +65,7 @@ export default function Register() {
 
       if (response.ok) {
         // Redirect to login page or dashboard after successful verification
-        window.location.href = "/login";
+        setRegistrationComplete(true);
       } else {
         setError(data.message || "Something went wrong");
       }
@@ -146,6 +147,13 @@ export default function Register() {
             </button>
           </div>
         </form>
+      ) : registrationComplete ? (
+        <div className="col-12">
+          <p className="text-16 text-green-1 text-center">
+            🎉 Your registration is complete! You can now install the YoTours
+            app from the Play Store and App Store.
+          </p>
+        </div>
       ) : (
         <form onSubmit={handleVerifyEmail} className="row y-gap-20">
           <div className="col-12">
