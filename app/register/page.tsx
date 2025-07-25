@@ -3,10 +3,6 @@
 import { useState } from "react";
 
 export default function Register() {
-  console.log(
-    "Environment variable",
-    process.env.NEXT_PUBLIC_AUDIOTOURS_BACKEND_URL
-  );
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -154,8 +150,8 @@ export default function Register() {
         <form onSubmit={handleVerifyEmail} className="row y-gap-20">
           <div className="col-12">
             <p className="text-14 text-light-1">
-              We've sent a verification code to <strong>{email}</strong>. Please
-              enter it below to complete your registration.
+              We&apos;ve sent a verification code to <strong>{email}</strong>.
+              Please enter it below to complete your registration.
             </p>
           </div>
 
@@ -185,7 +181,7 @@ export default function Register() {
 
           <div className="col-12">
             <p className="text-14 text-light-1 text-center">
-              Didn't receive the code?{" "}
+              Didn&apos;t receive the code?{" "}
               <button
                 type="button"
                 onClick={() => {
