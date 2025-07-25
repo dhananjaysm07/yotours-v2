@@ -149,7 +149,7 @@ export default function Register() {
         </form>
       ) : registrationComplete ? (
         <div className="col-12">
-          <p className="text-16 text-green-1 text-center">
+          <p className="text-16 text-center">
             🎉 Your registration is complete! You can now install the YoTours
             app from the Play Store and App Store.
           </p>
