@@ -22,8 +22,6 @@ const SocialShareLink = ({
 
   const copyToClipboard = () => {
     if (typeof window === "undefined") return;
-
-    const baseUrl = window.location.origin + window.location.pathname;
     const urlToCopy = shareUrl ?? window.location.href;
     navigator.clipboard.writeText(urlToCopy);
 
