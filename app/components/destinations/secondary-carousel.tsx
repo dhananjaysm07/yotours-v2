@@ -53,7 +53,7 @@ declare global {
   }
 }
 
-const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
+const TourAttractionCarouselInner: React.FC<TourAttractionCarouselProps> = ({
   data,
   bokunChannelID,
   filter,
@@ -293,6 +293,16 @@ const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = ({
         </button>
       </div>
     </>
+  );
+};
+
+const TourAttractionCarousel: React.FC<TourAttractionCarouselProps> = (
+  props,
+) => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <TourAttractionCarouselInner {...props} />
+    </Suspense>
   );
 };
 

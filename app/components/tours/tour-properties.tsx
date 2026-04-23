@@ -25,13 +25,15 @@ interface Tour {
   tag?: { name: string };
   tourBokunId: string;
 }
-
 interface TourPropertiesProps {
   tours: Tour[];
   bokunChannelId: string;
 }
 
-const TourProperties = ({ tours, bokunChannelId }: TourPropertiesProps) => {
+const TourPropertiesInner = ({
+  tours,
+  bokunChannelId,
+}: TourPropertiesProps) => {
   const [isClient, setIsClient] = useState(false);
   const searchParams = useSearchParams();
 
@@ -211,5 +213,11 @@ const TourProperties = ({ tours, bokunChannelId }: TourPropertiesProps) => {
     </>
   );
 };
+
+const TourProperties = (props: TourPropertiesProps) => (
+  <Suspense fallback={null}>
+    <TourPropertiesInner {...props} />
+  </Suspense>
+);
 
 export default TourProperties;

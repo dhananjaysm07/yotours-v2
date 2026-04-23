@@ -21,7 +21,7 @@ interface AttractionPropertiesProps {
   bokunChannelId: string;
 }
 
-const AttractionProperties = ({
+const AttractionPropertiesInner = ({
   attractions,
   bokunChannelId,
 }: AttractionPropertiesProps) => {
@@ -228,5 +228,11 @@ const AttractionProperties = ({
     </>
   );
 };
+
+const AttractionProperties = (props: AttractionPropertiesProps) => (
+  <Suspense fallback={null}>
+    <AttractionPropertiesInner {...props} />
+  </Suspense>
+);
 
 export default AttractionProperties;
