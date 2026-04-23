@@ -33,10 +33,10 @@ const SocialShareLink = ({
   const title = url;
 
   const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-    url,
+    shareUrl ?? window.location.href,
   )}`;
   const whatsappShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
-    title,
+    shareUrl ?? window.location.href,
   )}`;
 
   return (
