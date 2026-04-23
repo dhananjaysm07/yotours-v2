@@ -1,26 +1,26 @@
-import { Metadata } from 'next';
-import getPageMeta from '@/lib/get-page-meta';
-import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/navigation';
-import BsImport from './bs-import';
-import CookieConsentBar from '@/app/components/ui/cookie-consent';
-import Header from '@/app/components/common/header';
-import { constants } from '@/constants';
-import { getApolloClient } from '@/lib/apollo/apollo-client-ssr';
-import { unstable_cache } from 'next/cache';
-import Hero from '@/app/components/common/hero';
-import Destination from '@/app/components/destinations';
-import BlockGuide from '@/app/components/common/block-guide';
-import AdBanners from '@/app/components/common/ad-banners';
-import Footer from '@/app/components/footer';
-import { gql } from '@apollo/client';
-import DestinationsWeLove from './components/ui/destinations-we-love';
-import { getContentData } from '@/lib/apollo/common-api-funcs';
+import { Metadata } from "next";
+import getPageMeta from "@/lib/get-page-meta";
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
+import BsImport from "./bs-import";
+import CookieConsentBar from "@/app/components/ui/cookie-consent";
+import Header from "@/app/components/common/header";
+import { constants } from "@/constants";
+import { getApolloClient } from "@/lib/apollo/apollo-client-ssr";
+import { unstable_cache } from "next/cache";
+import Hero from "@/app/components/common/hero";
+import Destination from "@/app/components/destinations";
+import BlockGuide from "@/app/components/common/block-guide";
+import AdBanners from "@/app/components/common/ad-banners";
+import Footer from "@/app/components/footer";
+import { gql } from "@apollo/client";
+import DestinationsWeLove from "./components/ui/destinations-we-love";
+import { getContentData } from "@/lib/apollo/common-api-funcs";
 
 export const metadata: Metadata = getPageMeta(
-  'Home',
-  'Make your travel plans easier'
+  "Home",
+  "Make your travel plans easier",
 );
 
 // Only getContentData is processed here since it is required by more than one component
@@ -58,12 +58,12 @@ const getDestinationsWeLove = unstable_cache(
       });
       return data;
     } catch (error) {
-      console.error('Error fetching DestinationWeLoveQuery CONTENT:', error);
+      console.error("Error fetching DestinationWeLoveQuery CONTENT:", error);
       return { data: null };
     }
   },
-  ['GET_DESTINATION_WE_LOVE_QUERY'],
-  { revalidate: constants.revalidationSeconds }
+  ["GET_DESTINATION_WE_LOVE_QUERY"],
+  { revalidate: constants.revalidationSeconds },
 );
 
 const getDestinations = unstable_cache(
@@ -75,12 +75,12 @@ const getDestinations = unstable_cache(
       });
       return data;
     } catch (error) {
-      console.error('Error fetching DestinationQuery CONTENT:', error);
+      console.error("Error fetching DestinationQuery CONTENT:", error);
       return { data: null };
     }
   },
-  ['GET_DESTINATIONS_QUERY'],
-  { revalidate: constants.revalidationSeconds }
+  ["GET_DESTINATIONS_QUERY"],
+  { revalidate: constants.revalidationSeconds },
 );
 
 const HomePage = async () => {
@@ -89,11 +89,9 @@ const HomePage = async () => {
     getDestinationsWeLove(),
     getDestinations(),
   ]);
-
   const { getContent } = contentData.data;
-  const destinationsWeLove = dwl.data.getDestinations;
+  const destinationsWeLove = dwl.data?.getDestinations;
   const bokunChannelID = getContent.bokunChannelId;
-
   return (
     <>
       <Header />
@@ -103,7 +101,7 @@ const HomePage = async () => {
         <Destination
           filter={{
             activeValues: [true],
-            continent: ['Europe'],
+            continent: ["Europe"],
           }}
           bokunChannelID={bokunChannelID}
         />
@@ -124,15 +122,15 @@ const HomePage = async () => {
         <Destination
           filter={{
             activeValues: [true],
-            continent: ['Asia'],
-            country: ['India'],
+            continent: ["Asia"],
+            country: ["India"],
           }}
           bokunChannelID={bokunChannelID}
         />
         <Destination
           filter={{
             activeValues: [true],
-            continent: ['Asia'],
+            continent: ["Asia"],
           }}
           bokunChannelID={bokunChannelID}
         />

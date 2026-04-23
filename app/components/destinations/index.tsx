@@ -2,14 +2,14 @@ import {
   GetToursInHome,
   GetAttractionsInHome,
   GetDestinationsInHome,
-} from '@/graphql/destination-queries';
+} from "@/graphql/destination-queries";
 
-import { unstable_cache } from 'next/cache';
-import { getApolloClient } from '@/lib/apollo/apollo-client-ssr';
-import { constants } from '@/constants';
-import PopularDestinations from './popular-destinations';
-import ToursAndAttractions from './tours-and-attractions';
-import { DestinationFilterType } from '@/types';
+import { unstable_cache } from "next/cache";
+import { getApolloClient } from "@/lib/apollo/apollo-client-ssr";
+import { constants } from "@/constants";
+import PopularDestinations from "./popular-destinations";
+import ToursAndAttractions from "./tours-and-attractions";
+import { DestinationFilterType } from "@/types";
 
 const getTours = unstable_cache(
   async (filter: DestinationFilterType) => {
@@ -29,13 +29,13 @@ const getTours = unstable_cache(
         `Error fetching Tours in GET TOURS w/ ${
           filter.country ? filter.country : filter.continent
         }:`,
-        error
+        error,
       );
       return null;
     }
   },
-  ['GetTours'],
-  { revalidate: constants.revalidationSeconds }
+  ["GetTours"],
+  { revalidate: constants.revalidationSeconds },
 );
 
 const getAttractions = unstable_cache(
@@ -56,13 +56,13 @@ const getAttractions = unstable_cache(
         `Error fetching Tours in Get Attractions w/ ${
           filter.country ? filter.country : filter.continent
         }:`,
-        error
+        error,
       );
       return null;
     }
   },
-  ['GetAttractionsInHome'],
-  { revalidate: constants.revalidationSeconds }
+  ["GetAttractionsInHome"],
+  { revalidate: constants.revalidationSeconds },
 );
 
 const getDestinations = unstable_cache(
@@ -86,13 +86,13 @@ const getDestinations = unstable_cache(
         `Error fetching Tours in Get Destinations w/ ${
           filter.country ? filter.country : filter.continent
         }:`,
-        error
+        error,
       );
       return null;
     }
   },
-  ['GetDestinationsInHome'],
-  { revalidate: constants.revalidationSeconds }
+  ["GetDestinationsInHome"],
+  { revalidate: constants.revalidationSeconds },
 );
 
 const Destination = async ({

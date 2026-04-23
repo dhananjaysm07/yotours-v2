@@ -1,11 +1,19 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Head from 'next/head';
-import { FaFacebook, FaWhatsapp, FaCopy } from 'react-icons/fa';
-import Link from 'next/link';
+import React, { useState } from "react";
+import Head from "next/head";
+import { FaFacebook, FaWhatsapp, FaCopy } from "react-icons/fa";
+import Link from "next/link";
 
-const SocialShareLink = ({ bokunWidgetUrl }: { bokunWidgetUrl: string }) => {
+type SocialShareLinkProps = {
+  bokunWidgetUrl: string;
+  shareUrl?: string;
+};
+
+const SocialShareLink = ({
+  bokunWidgetUrl,
+  shareUrl,
+}: SocialShareLinkProps) => {
   const [copySuccess, setCopySuccess] = useState(false);
 
   if (!bokunWidgetUrl) {
@@ -13,7 +21,12 @@ const SocialShareLink = ({ bokunWidgetUrl }: { bokunWidgetUrl: string }) => {
   }
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(bokunWidgetUrl);
+    if (typeof window === "undefined") return;
+
+    const baseUrl = window.location.origin + window.location.pathname;
+    const urlToCopy = shareUrl ?? window.location.href;
+    navigator.clipboard.writeText(urlToCopy);
+
     setCopySuccess(true);
     setTimeout(() => setCopySuccess(false), 2000);
   };
@@ -22,10 +35,10 @@ const SocialShareLink = ({ bokunWidgetUrl }: { bokunWidgetUrl: string }) => {
   const title = url;
 
   const facebookShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-    url
+    url,
   )}`;
   const whatsappShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
-    title
+    title,
   )}`;
 
   return (

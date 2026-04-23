@@ -1,19 +1,20 @@
-'use client';
+"use client";
 
-import { useEffect, useState, useCallback, lazy, Suspense } from 'react';
-import Image from 'next/image';
+import { useEffect, useState, useCallback, lazy, Suspense } from "react";
+import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination } from 'swiper/modules';
-import { createRoot } from 'react-dom/client';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
-import { Attraction } from '@/types';
-import BokunScriptLoader from '../common/bokun-loader';
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper/modules";
+import { createRoot } from "react-dom/client";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import { Attraction } from "@/types";
+import BokunScriptLoader from "../common/bokun-loader";
 
 // Lazy load the social share component
-const SocialShareLink = lazy(() => import('../common/social-share-link'));
+const SocialShareLink = lazy(() => import("../common/social-share-link"));
 
 interface AttractionPropertiesProps {
   attractions: Attraction[];
@@ -25,50 +26,103 @@ const AttractionProperties = ({
   bokunChannelId,
 }: AttractionPropertiesProps) => {
   const [isClient, setIsClient] = useState(false);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
+  // ─── Auto-open modal if URL contains bokunId ──────────────────────────────
+  useEffect(() => {
+    const bokunId = searchParams.get("bokunId");
+    if (!bokunId) return;
+
+    const matchedAttraction = attractions.find(
+      (attraction) => attraction.attractionBokunId === bokunId,
+    );
+    if (!matchedAttraction) return;
+
+    const dataSrc = `https://widgets.bokun.io/online-sales/${bokunChannelId}/experience/${bokunId}?partialView=1`;
+
+    const triggerBokunModal = () => {
+      const matchingButton = document.querySelector(
+        `.bokunButton[data-src="${dataSrc}"]`,
+      ) as HTMLElement | null;
+
+      if (matchingButton) {
+        matchingButton.click();
+        return true;
+      }
+      return false;
+    };
+
+    let attempts = 0;
+    const maxAttempts = 30;
+
+    const interval = setInterval(() => {
+      attempts++;
+      const success = triggerBokunModal();
+      if (success || attempts >= maxAttempts) {
+        clearInterval(interval);
+      }
+    }, 800);
+
+    return () => clearInterval(interval);
+  }, [searchParams, bokunChannelId, attractions]);
+
+  // ─── Build share URL preserving existing params ───────────────────────────
+  const buildShareUrl = useCallback((attraction: Attraction): string => {
+    const url = new URL(window.location.href);
+
+    // Preserve all existing params, only set/overwrite these two
+    url.searchParams.set("product_name", attraction.attractionTitle);
+    url.searchParams.set("bokunId", attraction.attractionBokunId);
+
+    return url.toString();
+  }, []);
+
+  // ─── Click handler with share URL integration ───────────────────────────
   const handleBokunClick = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      const dataSrc = event.currentTarget.getAttribute('data-src');
+    (event: React.MouseEvent<HTMLDivElement>, attraction: Attraction) => {
+      const dataSrc = event.currentTarget.getAttribute("data-src");
       if (!dataSrc) return;
 
-      const widgetContainer = document.getElementById('bokun-modal-container');
+      const widgetContainer = document.getElementById("bokun-modal-container");
       if (widgetContainer) {
-        const existing = widgetContainer.querySelector('.socialurl');
+        const existing = widgetContainer.querySelector(".socialurl");
         if (existing) widgetContainer.removeChild(existing);
 
-        const socialDiv = document.createElement('div');
-        socialDiv.className = 'socialurl';
+        const socialDiv = document.createElement("div");
+        socialDiv.className = "socialurl";
         widgetContainer.appendChild(socialDiv);
 
-        const root = document.createElement('div');
+        const root = document.createElement("div");
         socialDiv.appendChild(root);
+
+        const shareUrl = buildShareUrl(attraction);
 
         createRoot(root).render(
           <Suspense fallback={<div>Loading...</div>}>
-            <SocialShareLink bokunWidgetUrl={dataSrc} />
-          </Suspense>
+            <SocialShareLink bokunWidgetUrl={dataSrc} shareUrl={shareUrl} />
+          </Suspense>,
         );
       }
     },
-    []
+    [buildShareUrl],
   );
 
   const getBadgeClasses = useCallback((tagName: string) => {
     const baseClasses =
-      'py-5 px-15 relative rounded-right-4 text-12 lh-16 fw-500 uppercase';
+      "py-5 px-15 relative rounded-right-4 text-12 lh-16 fw-500 uppercase";
     const specialCases = {
-      'Big Sale': 'bg-dark-1 text-white',
-      'Top Selling Tours': 'bg-blue-1 text-white',
-      'top rated': 'bg-yellow-1 text-dark-1',
-      default: 'bg-pink-1 text-white',
+      "Big Sale": "bg-dark-1 text-white",
+      "Top Selling Tours": "bg-blue-1 text-white",
+      "top rated": "bg-yellow-1 text-dark-1",
+      default: "bg-pink-1 text-white",
     };
 
     const match = Object.entries(specialCases).find(([key]) =>
-      tagName.toLowerCase().includes(key.toLowerCase())
+      tagName.toLowerCase().includes(key.toLowerCase()),
     );
 
     return `${baseClasses} ${match ? match[1] : specialCases.default}`;
@@ -91,11 +145,11 @@ const AttractionProperties = ({
               ? `https://widgets.bokun.io/online-sales/${bokunChannelId}/experience/${item.attractionBokunId}?partialView=1`
               : undefined
           }
-          onClick={handleBokunClick}
+          onClick={(e) => item?.attractionBokunId && handleBokunClick(e, item)}
         >
           <div
             className="tourCard__image"
-            style={{ position: 'relative', overflow: 'visible' }}
+            style={{ position: "relative", overflow: "visible" }}
           >
             <div className="cardImage ratio ratio-2:1">
               <div className="cardImage__content">
@@ -111,11 +165,11 @@ const AttractionProperties = ({
                         <Image
                           width={300}
                           height={300}
-                          src={slide.imageUrl || '/img/placeholder-img.webp'}
+                          src={slide.imageUrl || "/img/placeholder-img.webp"}
                           alt={`${item.attractionTitle} - Image ${i + 1}`}
                           className="rounded-4 col-12 js-lazy"
-                          priority={i === 0}
-                          loading={i === 0 ? 'eager' : 'lazy'}
+                          priority={i === 0 && index < 4}
+                          loading={i === 0 && index < 4 ? "eager" : "lazy"}
                         />
                       </SwiperSlide>
                     ))}
@@ -126,7 +180,7 @@ const AttractionProperties = ({
 
             <div
               className="cardImage__wishlist"
-              style={{ position: 'absolute', top: '10px', right: '10px' }}
+              style={{ position: "absolute", top: "10px", right: "10px" }}
             >
               <button
                 aria-label="Wishlist"
@@ -139,7 +193,7 @@ const AttractionProperties = ({
             {item?.tag?.name && (
               <div
                 className="cardImage__leftBadge"
-                style={{ position: 'absolute', top: '6px', left: '-8px' }}
+                style={{ position: "absolute", top: "6px", left: "-8px" }}
               >
                 <div className={getBadgeClasses(item.tag.name)}>
                   {item.tag.name}
@@ -162,7 +216,7 @@ const AttractionProperties = ({
                 <div className="text-14 text-light-1">
                   From
                   <strong className="text-16 fw-500 text-dark-1">
-                    {' '}
+                    {" "}
                     {item?.currency} {item?.price}
                   </strong>
                 </div>

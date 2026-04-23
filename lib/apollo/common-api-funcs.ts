@@ -4,8 +4,8 @@ import {
   CountriesContinentsData,
   UniqueDestinations,
   UniqueTourLocations,
-} from '@/types';
-import { getApolloClient } from './apollo-client-ssr';
+} from "@/types";
+import { getApolloClient } from "./apollo-client-ssr";
 import {
   GET_ALL_TAGS,
   GET_CONTENT_QUERY,
@@ -13,9 +13,9 @@ import {
   GET_COUNTRIES_CONTINENTS_QUERY,
   GET_DESTINATION_LOCATIONS,
   GET_TOUR_LOCATIONS,
-} from '@/graphql/query';
-import { unstable_cache } from 'next/cache';
-import { constants } from '@/constants';
+} from "@/graphql/query";
+import { unstable_cache } from "next/cache";
+import { constants } from "@/constants";
 
 export const getUniqueDestinations = unstable_cache(
   async (): Promise<UniqueDestinations> => {
@@ -26,12 +26,12 @@ export const getUniqueDestinations = unstable_cache(
       });
       return data;
     } catch (error) {
-      console.error('Error fetching unique destinations:', error);
+      console.error("Error fetching unique destinations:", error);
       return { getUniqueDestinationLocations: [] };
     }
   },
-  ['GET_UNIQUE_DESTINATION_LOCATIONS'],
-  { revalidate: constants.revalidationSeconds }
+  ["GET_UNIQUE_DESTINATION_LOCATIONS"],
+  { revalidate: constants.revalidationSeconds },
 );
 
 export const getContentData = unstable_cache(
@@ -43,12 +43,12 @@ export const getContentData = unstable_cache(
       });
       return data;
     } catch (error) {
-      console.error('Error fetching CONTENT:', error);
+      console.error("Error fetching CONTENT:", error);
       return { data: null };
     }
   },
-  ['GET_CONTENT_QUERY'],
-  { revalidate: constants.revalidationSeconds }
+  ["GET_CONTENT_QUERY"],
+  { revalidate: constants.revalidationSeconds },
 );
 
 export const getUniqueTourLocations = unstable_cache(
@@ -60,12 +60,12 @@ export const getUniqueTourLocations = unstable_cache(
       });
       return data;
     } catch (error) {
-      console.error('Error fetching unique tour locations:', error);
+      console.error("Error fetching unique tour locations:", error);
       return { getUniqueTourLocations: [] };
     }
   },
-  ['GET_TOUR_LOCATIONS'],
-  { revalidate: constants.revalidationSeconds }
+  ["GET_TOUR_LOCATIONS"],
+  { revalidate: constants.revalidationSeconds },
 );
 
 export const getCountriesAndContinents = unstable_cache(
@@ -77,12 +77,12 @@ export const getCountriesAndContinents = unstable_cache(
       });
       return data;
     } catch (error) {
-      console.error('Error fetching countries and continents:', error);
+      console.error("Error fetching countries and continents:", error);
       return { getCountriesAndContinents: [] };
     }
   },
-  ['GET_COUNTRIES_CONTINENTS_QUERY'],
-  { revalidate: constants.revalidationSeconds }
+  ["GET_COUNTRIES_CONTINENTS_QUERY"],
+  { revalidate: constants.revalidationSeconds },
 );
 
 export const getAllTags = unstable_cache(
@@ -94,12 +94,12 @@ export const getAllTags = unstable_cache(
       });
       return data;
     } catch (error) {
-      console.error('Error fetching unique tour locations:', error);
+      console.error("Error fetching unique tour locations:", error);
       return { getAllTags: [] };
     }
   },
-  ['GET_ALL_TAGS'],
-  { revalidate: constants.revalidationSeconds }
+  ["GET_ALL_TAGS"],
+  { revalidate: constants.revalidationSeconds },
 );
 
 export const getAttractionsCountriesAndContinents = unstable_cache(
@@ -111,10 +111,10 @@ export const getAttractionsCountriesAndContinents = unstable_cache(
       });
       return data;
     } catch (error) {
-      console.error('Error fetching countries and continents:', error);
+      console.error("Error fetching countries and continents:", error);
       return { getCountriesAndContinentsForAttractions: [] };
     }
   },
-  ['GET_COUNTRIES_CONTINENTS_ATTRACTIONS_QUERY'],
-  { revalidate: constants.revalidationSeconds }
+  ["GET_COUNTRIES_CONTINENTS_ATTRACTIONS_QUERY"],
+  { revalidate: constants.revalidationSeconds },
 );

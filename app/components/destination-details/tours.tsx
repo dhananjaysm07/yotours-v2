@@ -1,13 +1,14 @@
-'use client';
+"use client";
 
-import React, { useState, useCallback, lazy, Suspense } from 'react';
-import Image from 'next/image';
-import Slider from 'react-slick';
-import { createRoot } from 'react-dom/client';
-import { Tour } from '@/types';
+import React, { useState, useCallback, lazy, Suspense, useEffect } from "react";
+import Image from "next/image";
+import Slider from "react-slick";
+import { createRoot } from "react-dom/client";
+import { Tour } from "@/types";
+import { useSearchParams } from "next/navigation";
 
 // Lazy load the social share component
-const SocialShareLink = lazy(() => import('../common/social-share-link'));
+const SocialShareLink = lazy(() => import("../common/social-share-link"));
 
 interface ToursProps {
   tours: Tour[];
@@ -19,14 +20,14 @@ interface ToursProps {
 }
 
 // Memoized Arrow component
-const Arrow = React.memo(({ type }: { type: 'next' | 'prev' }) => {
+const Arrow = React.memo(({ type }: { type: "next" | "prev" }) => {
   const baseClasses =
-    'slick_arrow-between slick_arrow arrow-md flex-center button -blue-1 bg-white shadow-1 size-30 rounded-full sm:d-none';
+    "slick_arrow-between slick_arrow arrow-md flex-center button -blue-1 bg-white shadow-1 size-30 rounded-full sm:d-none";
   const className = `${baseClasses} -${type} js-${type} arrow`;
 
   return (
     <button className={className} aria-label={`Arrow Controls ${type}`}>
-      {type === 'next' ? (
+      {type === "next" ? (
         <i className="icon icon-chevron-right text-12" />
       ) : (
         <span className="icon icon-chevron-left text-12" />
@@ -35,36 +36,91 @@ const Arrow = React.memo(({ type }: { type: 'next' | 'prev' }) => {
   );
 });
 
-Arrow.displayName = 'Arrow';
+Arrow.displayName = "Arrow";
 
 const Tours = ({ tours, contentData }: ToursProps) => {
   const [visibleTours, setVisibleTours] = useState(8);
   const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
 
+  const bokunChannelID = contentData?.getContent.bokunChannelId;
+
+  // ─── Auto-open modal if URL contains bokunId ──────────────────────────────
+  useEffect(() => {
+    const bokunId = searchParams.get("bokunId");
+    if (!bokunId) return;
+
+    const matchedTour = activeTours.find(
+      (tour) => tour.tourBokunId === bokunId,
+    );
+    if (!matchedTour) return;
+
+    const dataSrc = `https://widgets.bokun.io/online-sales/${bokunChannelID}/experience/${bokunId}?partialView=1`;
+
+    const triggerBokunModal = () => {
+      const matchingButton = document.querySelector(
+        `.bokunButton[data-src="${dataSrc}"]`,
+      ) as HTMLElement | null;
+
+      if (matchingButton) {
+        matchingButton.click();
+        return true;
+      }
+      return false;
+    };
+
+    let attempts = 0;
+    const maxAttempts = 20;
+
+    const interval = setInterval(() => {
+      attempts++;
+      const success = triggerBokunModal();
+      if (success || attempts >= maxAttempts) {
+        clearInterval(interval);
+      }
+    }, 600);
+
+    return () => clearInterval(interval);
+  }, [searchParams, bokunChannelID]);
+
+  // ─── Build share URL preserving existing params ───────────────────────────
+  const buildShareUrl = useCallback((tour: Tour): string => {
+    const url = new URL(window.location.href);
+
+    // Preserve all existing params, only set/overwrite these two
+    url.searchParams.set("product_name", tour.tourTitle);
+    url.searchParams.set("bokunId", tour.tourBokunId);
+
+    return url.toString();
+  }, []);
+
+  // ─── Click handler ────────────────────────────────────────────────────────
   const handleBokunButtonClick = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      const dataSrc = event.currentTarget.getAttribute('data-src');
-      const widgetContainer = document.getElementById('bokun-modal-container');
+    (event: React.MouseEvent<HTMLDivElement>, tour: Tour) => {
+      const dataSrc = event.currentTarget.getAttribute("data-src");
+      const widgetContainer = document.getElementById("bokun-modal-container");
 
       if (widgetContainer && dataSrc) {
-        const existing = widgetContainer.querySelector('.socialurl');
+        const existing = widgetContainer.querySelector(".socialurl");
         if (existing) widgetContainer.removeChild(existing);
 
-        const socialDiv = document.createElement('div');
-        socialDiv.className = 'socialurl';
+        const socialDiv = document.createElement("div");
+        socialDiv.className = "socialurl";
         widgetContainer.appendChild(socialDiv);
 
-        const root = document.createElement('div');
+        const root = document.createElement("div");
         socialDiv.appendChild(root);
+
+        const shareUrl = buildShareUrl(tour);
 
         createRoot(root).render(
           <Suspense fallback={<div>Loading...</div>}>
-            <SocialShareLink bokunWidgetUrl={dataSrc} />
-          </Suspense>
+            <SocialShareLink bokunWidgetUrl={dataSrc} shareUrl={shareUrl} />
+          </Suspense>,
         );
       }
     },
-    []
+    [buildShareUrl],
   );
 
   // Handle load more functionality
@@ -79,20 +135,20 @@ const Tours = ({ tours, contentData }: ToursProps) => {
   // Memoized tag class name function
   const getTagClassName = useCallback((tagName?: string) => {
     const baseClasses =
-      'py-5 px-15 rounded-right-4 text-12 lh-16 fw-500 uppercase';
+      "py-5 px-15 rounded-right-4 text-12 lh-16 fw-500 uppercase";
 
     if (!tagName) return `${baseClasses} bg-blue-1 text-white`;
 
     const specialCases = {
-      trending: 'bg-dark-1 text-white',
-      'best seller': 'bg-blue-1 text-white',
-      'most popular': 'bg-blue-1 text-white',
-      sale: 'bg-yellow-1 text-white',
-      default: 'bg-pink-1 text-white',
+      trending: "bg-dark-1 text-white",
+      "best seller": "bg-blue-1 text-white",
+      "most popular": "bg-blue-1 text-white",
+      sale: "bg-yellow-1 text-white",
+      default: "bg-pink-1 text-white",
     };
 
     const match = Object.entries(specialCases).find(([key]) =>
-      tagName.toLowerCase().includes(key)
+      tagName.toLowerCase().includes(key),
     );
 
     return `${baseClasses} ${match ? match[1] : specialCases.default}`;
@@ -110,13 +166,13 @@ const Tours = ({ tours, contentData }: ToursProps) => {
       nextArrow: <Arrow type="next" />,
       prevArrow: <Arrow type="prev" />,
     }),
-    []
+    [],
   );
 
   // Filter active tours
   const activeTours = React.useMemo(
     () => tours?.filter((tour) => tour.active) || [],
-    [tours]
+    [tours],
   );
 
   if (activeTours.length === 0) {
@@ -138,9 +194,9 @@ const Tours = ({ tours, contentData }: ToursProps) => {
         >
           <div
             className="bokunButton tourCard -type-1 rounded-4 hover-inside-slider"
-            style={{ cursor: 'pointer' }}
-            data-src={`https://widgets.bokun.io/online-sales/${contentData?.getContent.bokunChannelId}/experience/${tour.tourBokunId}?partialView=1`}
-            onClick={handleBokunButtonClick}
+            style={{ cursor: "pointer" }}
+            data-src={`https://widgets.bokun.io/online-sales/${bokunChannelID}/experience/${tour.tourBokunId}?partialView=1`}
+            onClick={(e) => handleBokunButtonClick(e, tour)}
           >
             <div className="tourCard__image position-relative">
               <div className="inside-slider">
@@ -155,11 +211,11 @@ const Tours = ({ tours, contentData }: ToursProps) => {
                           width={300}
                           height={300}
                           className="col-12 js-lazy"
-                          src={slide.imageUrl || '/img/default-tour.jpg'}
+                          src={slide.imageUrl || "/img/default-tour.jpg"}
                           alt={tour.tourTitle}
-                          style={{ objectFit: 'cover' }}
+                          style={{ objectFit: "cover" }}
                           priority={i === 0 && index < 4}
-                          loading={i === 0 && index < 4 ? 'eager' : 'lazy'}
+                          loading={i === 0 && index < 4 ? "eager" : "lazy"}
                         />
                       </div>
                     </div>
@@ -188,8 +244,8 @@ const Tours = ({ tours, contentData }: ToursProps) => {
                     <div className="text-14 text-light-1">
                       From
                       <span className="text-16 fw-500 text-dark-1">
-                        {' '}
-                        {tour.currency || 'US$'} {tour.price}
+                        {" "}
+                        {tour.currency || "US$"} {tour.price}
                       </span>
                     </div>
                   </div>
@@ -208,7 +264,7 @@ const Tours = ({ tours, contentData }: ToursProps) => {
             onClick={handleLoadMore}
             disabled={loading}
           >
-            {loading ? 'Loading...' : 'Show More'}
+            {loading ? "Loading..." : "Show More"}
           </button>
         </div>
       )}
